@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin CRM — Tenacity Locks Ltd</title>
+<link rel="icon" type="image/png" href="../assets/images/logos/main-logo.png">
+<link rel="stylesheet" href="../assets/css/main.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  body { padding-top: 0; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .admin-main { padding: 32px; }
+  /* ── Report cards ── */
+  .report-kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-bottom: 28px; }
+  .report-kpi {
+    background: #fff; border-radius: var(--radius); padding: 24px 20px;
+    box-shadow: var(--shadow-sm); border-top: 4px solid var(--purple);
+    text-align: center;
+  }
+  .report-kpi.green  { border-color: #22c55e; }
+  .report-kpi.amber  { border-color: #f59e0b; }
+  .report-kpi.blue   { border-color: #3b82f6; }
+  .report-kpi .kpi-val {
+    font-family: var(--font-display);
+    font-size: 1.75rem; font-weight: 800; color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .report-kpi .kpi-lbl { font-size: 0.75rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; }
+  /* ── Chart wrapper ── */
+  .chart-card { background:#fff; border-radius:var(--radius); padding:28px; box-shadow:var(--shadow-sm); margin-bottom:24px; }
+  .chart-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .chart-card-title { font-family:var(--font-display); font-size:1rem; font-weight:700; }
+  .compare-controls { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .compare-controls select, .compare-controls input {
+    padding:7px 12px; border:2px solid var(--gray-light); border-radius:var(--radius-sm);
+    font-size:0.82rem; color:var(--dark); background:#fff;
+  }
+  .compare-controls select:focus, .compare-controls input:focus { border-color:var(--purple); outline:none; }
+  /* ── Monthly table ── */
+  .month-row-highlight td { background: rgba(152,20,145,0.05)!important; font-weight:600; }
+  @media (max-width: 768px) {
+    .admin-sidebar { position: fixed; left: -260px; top: 0; bottom: 0; z-index: 999; transition: left 0.3s; }
+    .admin-sidebar.open { left: 0; display: block; }
+    .admin-main { margin-left: 0; }
+    .admin-stat-grid { grid-template-columns: 1fr 1fr; }
+    .report-kpi-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<script src="../assets/js/data.js"></script>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen" class="admin-login">
+  <div class="admin-login-card">
+    <img src="../assets/images/logos/main-logo.png" alt="Tenacity Locks Ltd" style="height:56px;margin:0 auto 20px;display:block;">
+    <h2 style="font-size:1.4rem;margin-bottom:8px;">Admin CRM</h2>
+    <p style="color:var(--gray);font-size:0.88rem;margin-bottom:32px;">Tenacity Locks Ltd — Staff Only</p>
+    <div id="loginError" class="hidden" style="background:rgba(239,68,68,0.1);color:#dc2626;padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:16px;font-size:0.88rem;text-align:left;"></div>
+    <div class="form-group" style="text-align:left;">
+      <label>Username</label>
+      <input type="text" class="form-control" id="adminUser" placeholder="Enter username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Password</label>
+      <input type="password" class="form-control" id="adminPass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-block btn-lg mt-3" onclick="doLogin()">Login →</button>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel" class="hidden admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-logo">
+      <img src="../assets/images/logos/white-logo.png" alt="Tenacity Locks">
+    </div>
+    <nav>
+      <div class="admin-nav-section">Main</div>
+      <div class="admin-nav-item active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
+      <div class="admin-nav-item" onclick="showTab('reports',this)">📈 Reports</div>
+      <div class="admin-nav-item" onclick="showTab('orders',this)">📦 Orders</div>
+      <div class="admin-nav-section">Catalogue</div>
+      <div class="admin-nav-item" onclick="showTab('products',this)">🔒 Products</div>
+      <div class="admin-nav-item" onclick="showTab('categories',this)">📁 Categories</div>
+      <div class="admin-nav-section">Content</div>
+      <div class="admin-nav-item" onclick="showTab('blog',this)">✍️ Blog Posts</div>
+      <div class="admin-nav-item" onclick="showTab('homepage',this)">🏠 Homepage</div>
+      <div class="admin-nav-section">Account</div>
+      <div class="admin-nav-item" onclick="doLogout()">🚪 Logout</div>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <button id="sidebarToggle" style="display:none;background:none;font-size:1.4rem;padding:4px;" onclick="document.getElementById('adminSidebar').classList.toggle('open')">☰</button>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="../index.html" target="_blank" class="btn btn-outline btn-sm">View Site ↗</a>
+        <button onclick="doLogout()" class="btn btn-dark btn-sm">Logout</button>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="admin-stat-grid">
+        <div class="admin-stat-card"><div class="val" id="statProducts">0</div><div class="lbl">Total Products</div></div>
+        <div class="admin-stat-card" style="border-color:#22c55e;"><div class="val" id="statOffers">0</div><div class="lbl">On Offer</div></div>
+        <div class="admin-stat-card" style="border-color:#f59e0b;"><div class="val" id="statOrders">0</div><div class="lbl">Orders Received</div></div>
+        <div class="admin-stat-card" style="border-color:#3b82f6;"><div class="val" id="statRevenue">—</div><div class="lbl">Total Revenue</div></div>
+      </div>
+      <div class="grid-2" style="gap:24px;">
+        <div class="admin-card">
+          <h3 style="font-size:1rem;margin-bottom:20px;">📦 Recent Orders</h3>
+          <div id="dashOrders"></div>
+        </div>
+        <div class="admin-card">
+          <h3 style="font-size:1rem;margin-bottom:20px;">🔒 Products by Category</h3>
+          <div id="dashCats"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REPORTS ══ -->
+    <div class="tab-content" id="tab-reports">
+
+      <!-- KPI summary cards -->
+      <div class="report-kpi-grid" id="reportKpis"></div>
+
+      <!-- Sales over time chart -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">📈 Sales Over Time</div>
+          <div class="compare-controls">
+            <label style="font-size:0.8rem;color:var(--gray);">Group by:</label>
+            <select id="chartGroupBy" onchange="refreshSalesChart()">
+              <option value="month">Month</option>
+              <option value="week">Week</option>
+            </select>
+            <label style="font-size:0.8rem;color:var(--gray);">Year:</label>
+            <select id="chartYear" onchange="refreshSalesChart()"></select>
+          </div>
+        </div>
+        <canvas id="salesChart" height="90"></canvas>
+      </div>
+
+      <!-- Month comparison chart -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">🔀 Compare Two Months</div>
+          <div class="compare-controls">
+            <select id="cmpYear1" onchange="refreshCompareChart()"></select>
+            <select id="cmpMonth1" onchange="refreshCompareChart()"></select>
+            <span style="color:var(--gray);font-size:0.9rem;font-weight:600;">vs</span>
+            <select id="cmpYear2" onchange="refreshCompareChart()"></select>
+            <select id="cmpMonth2" onchange="refreshCompareChart()"></select>
+          </div>
+        </div>
+        <canvas id="compareChart" height="90"></canvas>
+      </div>
+
+      <!-- Monthly breakdown table -->
+      <div class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <h3 style="font-size:1rem;margin:0;">📅 Monthly Revenue Breakdown</h3>
+          <select id="tableYear" onchange="renderMonthlyTable()" style="padding:7px 12px;border:2px solid var(--gray-light);border-radius:var(--radius-sm);font-size:0.83rem;"></select>
+        </div>
+        <div style="overflow-x:auto;" id="monthlyTableWrap"></div>
+      </div>
+    </div>
+
+    <!-- ══ ORDERS ══ -->
+    <div class="tab-content" id="tab-orders">
+      <div class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="font-size:1rem;">All Orders</h3>
+          <button onclick="clearOrders()" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);">Clear All</button>
+        </div>
+        <div id="ordersTable"></div>
+      </div>
+    </div>
+
+    <!-- ══ PRODUCTS ══ -->
+    <div class="tab-content" id="tab-products">
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="font-size:1rem;">All Products</h3>
+          <button onclick="showProductForm(null)" class="btn btn-primary btn-sm">+ Add Product</button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <input type="text" class="form-control" id="productSearch" placeholder="Search products…" oninput="renderProductsTable()" style="max-width:320px;">
+        </div>
+        <div id="productsTable"></div>
+      </div>
+      <div class="admin-card hidden" id="productForm">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <h3 style="font-size:1rem;" id="productFormTitle">Add Product</h3>
+          <button onclick="hideProductForm()" class="modal-close">✕</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Product Name *</label><input type="text" class="form-control" id="pfName"></div>
+          <div class="form-group"><label>SKU</label><input type="text" class="form-control" id="pfSku"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Category *</label><select class="form-control" id="pfCategory"></select></div>
+          <div class="form-group"><label>Image Path</label><input type="text" class="form-control" id="pfImage" placeholder="assets/images/products/…"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Price (KShs) *</label><input type="number" class="form-control" id="pfPrice"></div>
+          <div class="form-group"><label>Original Price (KShs)</label><input type="number" class="form-control" id="pfOriginalPrice" placeholder="Leave blank if no discount"></div>
+        </div>
+        <div class="form-group"><label>Description *</label><textarea class="form-control" id="pfDescription" rows="4"></textarea></div>
+        <div class="form-group"><label>Features (comma-separated)</label><input type="text" class="form-control" id="pfFeatures" placeholder="5 Keys, CE Certified, Anti-pick"></div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="pfOnOffer" style="width:18px;height:18px;"> Mark as "On Offer"
+          </label>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button onclick="saveProduct()" class="btn btn-primary">Save Product</button>
+          <button onclick="hideProductForm()" class="btn btn-outline">Cancel</button>
+        </div>
+        <input type="hidden" id="pfEditId">
+      </div>
+    </div>
+
+    <!-- ══ CATEGORIES ══ -->
+    <div class="tab-content" id="tab-categories">
+      <div class="grid-2" style="gap:24px;align-items:start;">
+        <div class="admin-card">
+          <h3 style="font-size:1rem;margin-bottom:20px;">All Categories</h3>
+          <div id="categoriesTable"></div>
+        </div>
+        <div class="admin-card">
+          <h3 style="font-size:1rem;margin-bottom:20px;" id="catFormTitle">Add Category</h3>
+          <div class="form-group"><label>Category ID (no spaces)</label><input type="text" class="form-control" id="cfId" placeholder="e.g. smart-locks"></div>
+          <div class="form-group"><label>Category Name</label><input type="text" class="form-control" id="cfName2" placeholder="e.g. Smart Locks"></div>
+          <input type="hidden" id="cfEditId">
+          <div style="display:flex;gap:12px;">
+            <button onclick="saveCategory()" class="btn btn-primary">Save Category</button>
+            <button onclick="resetCatForm()" class="btn btn-outline">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BLOG ══ -->
+    <div class="tab-content" id="tab-blog">
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="font-size:1rem;">Blog Posts</h3>
+          <button onclick="showBlogForm(null)" class="btn btn-primary btn-sm">+ New Post</button>
+        </div>
+        <div id="blogTable"></div>
+      </div>
+      <div class="admin-card hidden" id="blogForm">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <h3 style="font-size:1rem;" id="blogFormTitle">New Post</h3>
+          <button onclick="hideBlogForm()" class="modal-close">✕</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Title *</label><input type="text" class="form-control" id="bfTitle"></div>
+          <div class="form-group"><label>Category</label><input type="text" class="form-control" id="bfCategory" placeholder="e.g. Buying Guide"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Author</label><input type="text" class="form-control" id="bfAuthor" value="Tenacity Locks Team"></div>
+          <div class="form-group"><label>Featured Image Path</label><input type="text" class="form-control" id="bfImage" placeholder="assets/images/…"></div>
+        </div>
+        <div class="form-group"><label>Excerpt *</label><textarea class="form-control" id="bfExcerpt" rows="2"></textarea></div>
+        <div class="form-group"><label>Content (HTML allowed) *</label><textarea class="form-control" id="bfContent" rows="10"></textarea></div>
+        <input type="hidden" id="bfEditId">
+        <div style="display:flex;gap:12px;">
+          <button onclick="saveBlogPost()" class="btn btn-primary">Save Post</button>
+          <button onclick="hideBlogForm()" class="btn btn-outline">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ HOMEPAGE ══ -->
+    <div class="tab-content" id="tab-homepage">
+      <div class="admin-card">
+        <h3 style="font-size:1rem;margin-bottom:20px;">Homepage Content Settings</h3>
+        <div class="form-group"><label>Hero Headline</label><input type="text" class="form-control" id="hpHeadline" placeholder="Secure Every Door. Trust Every Lock."></div>
+        <div class="form-group"><label>Hero Subtext</label><textarea class="form-control" id="hpSubtext" rows="2"></textarea></div>
+        <div class="form-group"><label>Promo Banner Title</label><input type="text" class="form-control" id="hpPromoTitle"></div>
+        <div class="form-group"><label>Promo Banner Text</label><textarea class="form-control" id="hpPromoText" rows="2"></textarea></div>
+        <div class="form-group"><label>Contact Email</label><input type="email" class="form-control" id="hpEmail"></div>
+        <div class="form-group"><label>Contact Phone</label><input type="text" class="form-control" id="hpPhone"></div>
+        <button onclick="saveHomepage()" class="btn btn-primary">Save Settings</button>
+        <span id="hpSaved" class="hidden" style="color:var(--success);margin-left:12px;font-size:0.88rem;">✓ Saved!</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Helpers ──
+// fmt() is already defined in data.js
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ── Auth ──
+function doLogin() {
+  const user = document.getElementById('adminUser').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  if (Admin.login(user, pass)) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+    initDashboard();
+  } else {
+    const err = document.getElementById('loginError');
+    err.textContent = 'Incorrect password. Please try again.';
+    err.classList.remove('hidden');
+  }
+}
+function doLogout() { Admin.logout(); location.reload(); }
+if (Admin.isLoggedIn()) {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('adminPanel').classList.remove('hidden');
+}
+if (window.innerWidth < 768) document.getElementById('sidebarToggle').style.display = 'block';
+
+// ── Tabs ──
+function showTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('pageTitle').textContent = el.textContent.trim();
+  if (id === 'dashboard') initDashboard();
+  else if (id === 'reports') initReports();
+  else if (id === 'orders') renderOrdersTable();
+  else if (id === 'products') { renderProductsTable(); populateCatSelect(); }
+  else if (id === 'categories') renderCategoriesTable();
+  else if (id === 'blog') renderBlogTable();
+  else if (id === 'homepage') loadHomepageSettings();
+  if (window.innerWidth < 768) document.getElementById('adminSidebar').classList.remove('open');
+}
+
+// ── Dashboard ──
+function initDashboard() {
+  const prods = getAllProducts();
+  const orders = Orders.get();
+  const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+  document.getElementById('statProducts').textContent = prods.length;
+  document.getElementById('statOffers').textContent = prods.filter(p => p.onOffer).length;
+  document.getElementById('statOrders').textContent = orders.length;
+  document.getElementById('statRevenue').textContent = revenue > 0 ? fmt(revenue) : '—';
+
+  document.getElementById('dashOrders').innerHTML = orders.length
+    ? `<table class="admin-table"><thead><tr><th>Name</th><th>Total</th><th>Date</th></tr></thead><tbody>
+      ${orders.slice(0,5).map(o => `<tr><td>${o.name}</td><td>${fmt(o.total)}</td><td>${new Date(o.date).toLocaleDateString('en-KE')}</td></tr>`).join('')}
+      </tbody></table>`
+    : `<p style="color:var(--gray);font-size:0.88rem;">No orders yet.</p>`;
+
+  const cats = getAllCategories().filter(c => c.id !== 'all');
+  document.getElementById('dashCats').innerHTML = `<table class="admin-table"><thead><tr><th>Category</th><th>Products</th></tr></thead><tbody>
+    ${cats.map(c => {
+      const count = getAllProducts().filter(p => p.category === c.id).length;
+      return `<tr><td>${c.name}</td><td><span class="badge badge-purple">${count}</span></td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+// ─────────────────────────────────────
+// ══ REPORTS ══
+// ─────────────────────────────────────
+let salesChartInstance = null;
+let compareChartInstance = null;
+
+function getOrdersData() {
+  return Orders.get().map(o => ({
+    ...o,
+    _date: new Date(o.date),
+    _total: Number(o.total) || 0,
+  })).filter(o => !isNaN(o._date));
+}
+
+function getYears(orders) {
+  const years = [...new Set(orders.map(o => o._date.getFullYear()))].sort((a,b) => b-a);
+  if (!years.length) years.push(new Date().getFullYear());
+  return years;
+}
+
+function populateYearSelects(orders) {
+  const years = getYears(orders);
+  const makeOptions = (sel, extra) => {
+    sel.innerHTML = (extra ? extra : '') + years.map(y => `<option value="${y}">${y}</option>`).join('');
+  };
+  makeOptions(document.getElementById('chartYear'));
+  makeOptions(document.getElementById('tableYear'));
+  makeOptions(document.getElementById('cmpYear1'));
+  makeOptions(document.getElementById('cmpYear2'));
+  // default compare: current month vs previous
+  const now = new Date();
+  document.getElementById('cmpYear1').value = now.getFullYear();
+  document.getElementById('cmpYear2').value = now.getFullYear();
+  populateMonthSelects();
+  document.getElementById('cmpMonth1').value = now.getMonth();
+  document.getElementById('cmpMonth2').value = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+}
+
+function populateMonthSelects() {
+  const opts = MONTHS_FULL.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+  document.getElementById('cmpMonth1').innerHTML = opts;
+  document.getElementById('cmpMonth2').innerHTML = opts;
+}
+
+function initReports() {
+  const orders = getOrdersData();
+  // KPI cards
+  const totalRev = orders.reduce((s,o) => s + o._total, 0);
+  const thisYear = new Date().getFullYear();
+  const thisMonth = new Date().getMonth();
+  const revThisMonth = orders
+    .filter(o => o._date.getFullYear() === thisYear && o._date.getMonth() === thisMonth)
+    .reduce((s,o) => s + o._total, 0);
+  const revThisYear = orders
+    .filter(o => o._date.getFullYear() === thisYear)
+    .reduce((s,o) => s + o._total, 0);
+  const avgOrder = orders.length ? Math.round(totalRev / orders.length) : 0;
+
+  document.getElementById('reportKpis').innerHTML = `
+    <div class="report-kpi">
+      <div class="kpi-val">${fmt(totalRev)}</div>
+      <div class="kpi-lbl">Total Revenue (All Time)</div>
+    </div>
+    <div class="report-kpi green">
+      <div class="kpi-val">${fmt(revThisYear)}</div>
+      <div class="kpi-lbl">Revenue This Year</div>
+    </div>
+    <div class="report-kpi amber">
+      <div class="kpi-val">${fmt(revThisMonth)}</div>
+      <div class="kpi-lbl">Revenue This Month</div>
+    </div>
+    <div class="report-kpi blue">
+      <div class="kpi-val">${avgOrder ? fmt(avgOrder) : '—'}</div>
+      <div class="kpi-lbl">Average Order Value</div>
+    </div>`;
+
+  populateYearSelects(orders);
+  refreshSalesChart();
+  refreshCompareChart();
+  renderMonthlyTable();
+}
+
+function getMonthlyData(orders, year) {
+  const data = Array(12).fill(0);
+  const counts = Array(12).fill(0);
+  orders.filter(o => o._date.getFullYear() === year).forEach(o => {
+    data[o._date.getMonth()] += o._total;
+    counts[o._date.getMonth()]++;
+  });
+  return { revenue: data, counts };
+}
+
+function refreshSalesChart() {
+  const orders = getOrdersData();
+  const year = parseInt(document.getElementById('chartYear').value);
+  const groupBy = document.getElementById('chartGroupBy').value;
+  let labels, data, counts;
+
+  if (groupBy === 'month') {
+    const md = getMonthlyData(orders, year);
+    labels = MONTHS;
+    data = md.revenue;
+    counts = md.counts;
+  } else {
+    // group by week number within year
+    const weekMap = {};
+    orders.filter(o => o._date.getFullYear() === year).forEach(o => {
+      const start = new Date(year, 0, 1);
+      const week = Math.ceil(((o._date - start) / 86400000 + start.getDay() + 1) / 7);
+      weekMap[week] = (weekMap[week] || 0) + o._total;
+    });
+    const wks = Object.keys(weekMap).map(Number).sort((a,b) => a-b);
+    labels = wks.map(w => `Wk ${w}`);
+    data = wks.map(w => weekMap[w]);
+    counts = null;
+  }
+
+  if (salesChartInstance) salesChartInstance.destroy();
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  salesChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: `Revenue ${year} (KShs)`,
+        data,
+        borderColor: '#981491',
+        backgroundColor: 'rgba(152,20,145,0.08)',
+        borderWidth: 2.5,
+        tension: 0.35,
+        fill: true,
+        pointBackgroundColor: '#981491',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` KShs ${ctx.parsed.y.toLocaleString('en-KE')}`,
+            afterLabel: counts ? (ctx => ` ${counts[ctx.dataIndex]} order${counts[ctx.dataIndex]!==1?'s':''}`) : undefined,
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: v => 'KShs ' + (v/1000).toFixed(0) + 'k', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function refreshCompareChart() {
+  const orders = getOrdersData();
+  const y1 = parseInt(document.getElementById('cmpYear1').value);
+  const m1 = parseInt(document.getElementById('cmpMonth1').value);
+  const y2 = parseInt(document.getElementById('cmpYear2').value);
+  const m2 = parseInt(document.getElementById('cmpMonth2').value);
+
+  // Build daily data for each month
+  function getDailyRevenue(year, month) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const data = Array(daysInMonth).fill(0);
+    orders.filter(o => o._date.getFullYear() === year && o._date.getMonth() === month)
+          .forEach(o => { data[o._date.getDate() - 1] += o._total; });
+    return data;
+  }
+  const d1 = getDailyRevenue(y1, m1);
+  const d2 = getDailyRevenue(y2, m2);
+  const maxDays = Math.max(d1.length, d2.length);
+  const labels = Array.from({length: maxDays}, (_, i) => `Day ${i+1}`);
+
+  if (compareChartInstance) compareChartInstance.destroy();
+  const ctx = document.getElementById('compareChart').getContext('2d');
+  compareChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: `${MONTHS_FULL[m1]} ${y1}`,
+          data: d1,
+          borderColor: '#981491',
+          backgroundColor: 'rgba(152,20,145,0.07)',
+          borderWidth: 2.5,
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+        },
+        {
+          label: `${MONTHS_FULL[m2]} ${y2}`,
+          data: d2,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.07)',
+          borderWidth: 2.5,
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: KShs ${ctx.parsed.y.toLocaleString('en-KE')}` } }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: v => 'KShs ' + (v/1000).toFixed(0) + 'k', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderMonthlyTable() {
+  const orders = getOrdersData();
+  const year = parseInt(document.getElementById('tableYear').value);
+  const { revenue, counts } = getMonthlyData(orders, year);
+  const totalRev = revenue.reduce((s,v) => s+v, 0);
+  const totalOrders = counts.reduce((s,v) => s+v, 0);
+  const now = new Date();
+  const isCurrentYear = year === now.getFullYear();
+
+  document.getElementById('monthlyTableWrap').innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>Month</th>
+        <th>Orders</th>
+        <th>Revenue</th>
+        <th>Avg / Order</th>
+        <th>% of Year</th>
+      </tr></thead>
+      <tbody>
+      ${MONTHS_FULL.map((m, i) => {
+        const highlight = isCurrentYear && i === now.getMonth();
+        const avg = counts[i] ? Math.round(revenue[i] / counts[i]) : 0;
+        const pct = totalRev > 0 ? ((revenue[i] / totalRev) * 100).toFixed(1) : '0.0';
+        return `<tr ${highlight ? 'class="month-row-highlight"' : ''}>
+          <td><strong>${m}</strong>${highlight ? ' <span class="badge badge-success">Current</span>' : ''}</td>
+          <td>${counts[i] || 0}</td>
+          <td><strong>${revenue[i] ? fmt(revenue[i]) : '—'}</strong></td>
+          <td>${avg ? fmt(avg) : '—'}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:var(--gray-light);border-radius:99px;min-width:60px;">
+                <div style="width:${pct}%;height:100%;background:var(--purple);border-radius:99px;"></div>
+              </div>
+              <span style="font-size:0.8rem;color:var(--gray);min-width:36px;">${pct}%</span>
+            </div>
+          </td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+      <tfoot>
+        <tr style="background:var(--off-white);">
+          <td><strong>Total ${year}</strong></td>
+          <td><strong>${totalOrders}</strong></td>
+          <td><strong>${totalRev ? fmt(totalRev) : '—'}</strong></td>
+          <td><strong>${totalOrders ? fmt(Math.round(totalRev/totalOrders)) : '—'}</strong></td>
+          <td><strong>100%</strong></td>
+        </tr>
+      </tfoot>
+    </table>`;
+}
+
+// ── Orders ──
+function renderOrdersTable() {
+  const orders = Orders.get();
+  const el = document.getElementById('ordersTable');
+  if (!orders.length) { el.innerHTML = `<p style="color:var(--gray);font-size:0.88rem;text-align:center;padding:40px;">No orders yet.</p>`; return; }
+  el.innerHTML = `<div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>
+      ${orders.map((o, i) => `
+        <tr>
+          <td>${orders.length - i}</td>
+          <td>${o.name}</td>
+          <td><a href="tel:${o.phone}">${o.phone}</a></td>
+          <td>${(o.items||[]).length} item(s)</td>
+          <td><strong>${fmt(o.total)}</strong></td>
+          <td>${new Date(o.date).toLocaleDateString('en-KE')}</td>
+          <td>
+            <div class="action-btns">
+              <button onclick="viewOrder(${i})" class="btn btn-outline btn-sm">View</button>
+              <a href="https://wa.me/${o.phone.replace(/[^0-9]/g,'')}?text=Hello+${encodeURIComponent(o.name)}%2C+this+is+Tenacity+Locks!" target="_blank" class="btn btn-whatsapp btn-sm">💬</a>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+function viewOrder(index) {
+  const order = Orders.get()[index];
+  if (!order) return;
+  alert(`ORDER DETAILS\n\nCustomer: ${order.name}\nPhone: ${order.phone}\nEmail: ${order.email||'N/A'}\nAddress: ${order.address}\nLocation: ${order.location||'N/A'}\n\nItems:\n${(order.items||[]).map(i=>`  • ${i.name} ×${i.qty} — ${fmt(i.price*i.qty)}`).join('\n')}\n\nSubtotal: ${fmt(order.subtotal)}\nShipping: ${fmt(order.shipping)}\nTotal: ${fmt(order.total)}\n\nDate: ${new Date(order.date).toLocaleString('en-KE')}`);
+}
+
+function clearOrders() {
+  if (confirm('Clear all orders? This cannot be undone.')) {
+    localStorage.removeItem('tenacity_orders');
+    renderOrdersTable();
+    initDashboard();
+  }
+}
+
+// ── Products ──
+function renderProductsTable() {
+  const search = (document.getElementById('productSearch')?.value || '').toLowerCase();
+  const prods = getAllProducts().filter(p => !search || p.name.toLowerCase().includes(search));
+  const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  document.getElementById('productsTable').innerHTML = `<div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      ${prods.map(p => {
+        const isCustom = custom.some(c => c.id === p.id);
+        return `<tr>
+          <td><strong>${p.name}</strong><div style="font-size:0.75rem;color:var(--gray);">${p.sku||''}</div></td>
+          <td>${p.category}</td>
+          <td>${fmt(p.price)}${p.originalPrice ? `<br><small style="color:var(--gray);text-decoration:line-through;">${fmt(p.originalPrice)}</small>` : ''}</td>
+          <td>${p.onOffer ? '<span class="badge badge-success">On Offer</span>' : '<span class="badge badge-warning">Regular</span>'}</td>
+          <td>
+            <div class="action-btns">
+              <button onclick="showProductForm('${p.id}')" class="btn btn-outline btn-sm">Edit</button>
+              ${isCustom ? `<button onclick="deleteProduct('${p.id}')" class="btn btn-sm" style="color:var(--danger);background:rgba(239,68,68,0.1);">Delete</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+function populateCatSelect() {
+  document.getElementById('pfCategory').innerHTML = getAllCategories().filter(c => c.id !== 'all').map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function showProductForm(id) {
+  document.getElementById('productForm').classList.remove('hidden');
+  populateCatSelect();
+  if (id) {
+    const p = getAllProducts().find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('productFormTitle').textContent = 'Edit Product';
+    document.getElementById('pfName').value = p.name;
+    document.getElementById('pfSku').value = p.sku || '';
+    document.getElementById('pfCategory').value = p.category;
+    document.getElementById('pfImage').value = p.image;
+    document.getElementById('pfPrice').value = p.price;
+    document.getElementById('pfOriginalPrice').value = p.originalPrice || '';
+    document.getElementById('pfDescription').value = p.description;
+    document.getElementById('pfFeatures').value = (p.features || []).join(', ');
+    document.getElementById('pfOnOffer').checked = p.onOffer;
+    document.getElementById('pfEditId').value = id;
+  } else {
+    document.getElementById('productFormTitle').textContent = 'Add Product';
+    ['pfName','pfSku','pfImage','pfPrice','pfOriginalPrice','pfDescription','pfFeatures'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('pfOnOffer').checked = false;
+    document.getElementById('pfEditId').value = '';
+  }
+  document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideProductForm() { document.getElementById('productForm').classList.add('hidden'); }
+
+function saveProduct() {
+  const editId = document.getElementById('pfEditId').value;
+  const product = {
+    id: editId || 'prod-' + Date.now(),
+    name: document.getElementById('pfName').value,
+    sku: document.getElementById('pfSku').value,
+    category: document.getElementById('pfCategory').value,
+    image: document.getElementById('pfImage').value,
+    price: parseInt(document.getElementById('pfPrice').value),
+    originalPrice: parseInt(document.getElementById('pfOriginalPrice').value) || null,
+    description: document.getElementById('pfDescription').value,
+    features: document.getElementById('pfFeatures').value.split(',').map(f => f.trim()).filter(Boolean),
+    onOffer: document.getElementById('pfOnOffer').checked,
+  };
+  if (!product.name || !product.price) return alert('Name and price are required.');
+  let custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  if (editId) {
+    const idx = custom.findIndex(p => p.id === editId);
+    if (idx >= 0) custom[idx] = product; else custom.push(product);
+  } else custom.unshift(product);
+  localStorage.setItem('custom_products', JSON.stringify(custom));
+  hideProductForm();
+  renderProductsTable();
+}
+
+function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  let custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  localStorage.setItem('custom_products', JSON.stringify(custom.filter(p => p.id !== id)));
+  renderProductsTable();
+}
+
+// ── Categories ──
+function renderCategoriesTable() {
+  const custom = JSON.parse(localStorage.getItem('custom_categories') || '[]');
+  document.getElementById('categoriesTable').innerHTML = `<table class="admin-table">
+    <thead><tr><th>Name</th><th>ID</th><th>Source</th><th>Actions</th></tr></thead>
+    <tbody>
+    ${getAllCategories().map(c => {
+      const isCustom = custom.some(x => x.id === c.id);
+      return `<tr>
+        <td><strong>${c.name}</strong></td>
+        <td><code style="font-size:0.78rem;background:var(--off-white);padding:2px 6px;border-radius:4px;">${c.id}</code></td>
+        <td><span class="badge ${isCustom ? 'badge-purple' : 'badge-warning'}">${isCustom ? 'Custom' : 'Built-in'}</span></td>
+        <td>
+          ${isCustom ? `<div class="action-btns">
+            <button onclick="editCategory('${c.id}')" class="btn btn-outline btn-sm">Edit</button>
+            <button onclick="deleteCategory('${c.id}')" class="btn btn-sm" style="color:var(--danger);background:rgba(239,68,68,0.1);">Delete</button>
+          </div>` : '<span style="font-size:0.78rem;color:var(--gray);">Built-in</span>'}
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody></table>`;
+}
+
+function saveCategory() {
+  const id = document.getElementById('cfId').value.trim();
+  const name = document.getElementById('cfName2').value.trim();
+  const editId = document.getElementById('cfEditId').value;
+  if (!id || !name) return alert('ID and Name are required.');
+  if (!/^[a-z0-9-]+$/.test(id)) return alert('ID must be lowercase letters, numbers, and hyphens only.');
+  let custom = JSON.parse(localStorage.getItem('custom_categories') || '[]');
+  if (editId) {
+    const idx = custom.findIndex(c => c.id === editId);
+    if (idx >= 0) custom[idx] = { id, name }; else custom.push({ id, name });
+  } else {
+    if (getAllCategories().some(c => c.id === id)) return alert('A category with this ID already exists.');
+    custom.push({ id, name });
+  }
+  localStorage.setItem('custom_categories', JSON.stringify(custom));
+  resetCatForm(); renderCategoriesTable();
+}
+
+function editCategory(id) {
+  const cat = getAllCategories().find(c => c.id === id);
+  if (!cat) return;
+  document.getElementById('cfId').value = cat.id;
+  document.getElementById('cfName2').value = cat.name;
+  document.getElementById('cfEditId').value = cat.id;
+  document.getElementById('catFormTitle').textContent = 'Edit Category';
+}
+
+function deleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  let custom = JSON.parse(localStorage.getItem('custom_categories') || '[]');
+  localStorage.setItem('custom_categories', JSON.stringify(custom.filter(c => c.id !== id)));
+  renderCategoriesTable();
+}
+
+function resetCatForm() {
+  ['cfId','cfName2','cfEditId'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('catFormTitle').textContent = 'Add Category';
+}
+
+// ── Blog ──
+function renderBlogTable() {
+  const custom = JSON.parse(localStorage.getItem('custom_blog') || '[]');
+  document.getElementById('blogTable').innerHTML = `<table class="admin-table">
+    <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Source</th><th>Actions</th></tr></thead>
+    <tbody>
+    ${getAllBlogPosts().map(post => {
+      const isCustom = custom.some(p => p.id === post.id);
+      return `<tr>
+        <td><strong>${post.title}</strong></td>
+        <td>${post.category}</td>
+        <td>${post.date}</td>
+        <td><span class="badge ${isCustom ? 'badge-purple' : 'badge-warning'}">${isCustom ? 'Custom' : 'Built-in'}</span></td>
+        <td>
+          <div class="action-btns">
+            <a href="../blog.html?post=${post.id}" target="_blank" class="btn btn-outline btn-sm">View</a>
+            ${isCustom ? `
+              <button onclick="showBlogForm('${post.id}')" class="btn btn-outline btn-sm">Edit</button>
+              <button onclick="deleteBlogPost('${post.id}')" class="btn btn-sm" style="color:var(--danger);background:rgba(239,68,68,0.1);">Delete</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody></table>`;
+}
+
+function showBlogForm(id) {
+  document.getElementById('blogForm').classList.remove('hidden');
+  if (id) {
+    const post = getAllBlogPosts().find(p => p.id === id);
+    if (!post) return;
+    document.getElementById('blogFormTitle').textContent = 'Edit Post';
+    document.getElementById('bfTitle').value = post.title;
+    document.getElementById('bfCategory').value = post.category;
+    document.getElementById('bfAuthor').value = post.author;
+    document.getElementById('bfImage').value = post.image;
+    document.getElementById('bfExcerpt').value = post.excerpt;
+    document.getElementById('bfContent').value = post.content;
+    document.getElementById('bfEditId').value = id;
+  } else {
+    document.getElementById('blogFormTitle').textContent = 'New Post';
+    ['bfTitle','bfCategory','bfImage','bfExcerpt','bfContent'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('bfAuthor').value = 'Tenacity Locks Team';
+    document.getElementById('bfEditId').value = '';
+  }
+  document.getElementById('blogForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideBlogForm() { document.getElementById('blogForm').classList.add('hidden'); }
+
+function saveBlogPost() {
+  const editId = document.getElementById('bfEditId').value;
+  const post = {
+    id: editId || 'post-' + Date.now(),
+    title: document.getElementById('bfTitle').value,
+    category: document.getElementById('bfCategory').value || 'General',
+    author: document.getElementById('bfAuthor').value,
+    image: document.getElementById('bfImage').value || '../assets/images/categories/entry-level.jpg',
+    excerpt: document.getElementById('bfExcerpt').value,
+    content: document.getElementById('bfContent').value,
+    date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }),
+  };
+  if (!post.title) return alert('Title is required.');
+  let custom = JSON.parse(localStorage.getItem('custom_blog') || '[]');
+  if (editId) {
+    const idx = custom.findIndex(p => p.id === editId);
+    if (idx >= 0) custom[idx] = post; else custom.unshift(post);
+  } else custom.unshift(post);
+  localStorage.setItem('custom_blog', JSON.stringify(custom));
+  hideBlogForm(); renderBlogTable();
+}
+
+function deleteBlogPost(id) {
+  if (!confirm('Delete this blog post?')) return;
+  let custom = JSON.parse(localStorage.getItem('custom_blog') || '[]');
+  localStorage.setItem('custom_blog', JSON.stringify(custom.filter(p => p.id !== id)));
+  renderBlogTable();
+}
+
+// ── Homepage ──
+function loadHomepageSettings() {
+  const s = JSON.parse(localStorage.getItem('homepage_settings') || '{}');
+  document.getElementById('hpHeadline').value = s.headline || '';
+  document.getElementById('hpSubtext').value = s.subtext || '';
+  document.getElementById('hpPromoTitle').value = s.promoTitle || '';
+  document.getElementById('hpPromoText').value = s.promoText || '';
+  document.getElementById('hpEmail').value = s.email || SITE.email;
+  document.getElementById('hpPhone').value = s.phone || SITE.phone1;
+}
+
+function saveHomepage() {
+  localStorage.setItem('homepage_settings', JSON.stringify({
+    headline: document.getElementById('hpHeadline').value,
+    subtext: document.getElementById('hpSubtext').value,
+    promoTitle: document.getElementById('hpPromoTitle').value,
+    promoText: document.getElementById('hpPromoText').value,
+    email: document.getElementById('hpEmail').value,
+    phone: document.getElementById('hpPhone').value,
+  }));
+  const saved = document.getElementById('hpSaved');
+  saved.classList.remove('hidden');
+  setTimeout(() => saved.classList.add('hidden'), 3000);
+}
+
+// Init
+if (Admin.isLoggedIn()) initDashboard();
+</script>
+</body>
+</html>

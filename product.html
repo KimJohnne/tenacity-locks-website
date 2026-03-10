@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Product — Tenacity Locks Ltd</title>
+<link rel="icon" type="image/png" href="assets/images/logos/main-logo.png">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>renderNav('shop');</script>
+
+<section class="section">
+  <div class="container">
+    <div id="productContent"></div>
+    <div id="relatedProducts" style="margin-top:64px;"></div>
+  </div>
+</section>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const pid = params.get('id');
+const product = getAllProducts().find(p => p.id === pid);
+
+if (!product) {
+  document.getElementById('productContent').innerHTML = `
+    <div style="text-align:center;padding:80px 20px;">
+      <div style="font-size:4rem;margin-bottom:16px;">🔒</div>
+      <h2>Product not found</h2>
+      <a href="shop.html" class="btn btn-primary mt-3">← Back to Shop</a>
+    </div>`;
+} else {
+  document.title = `${product.name} — Tenacity Locks Ltd`;
+  const cat = getAllCategories().find(c => c.id === product.category);
+  const discount = product.originalPrice ? Math.round((1 - product.price/product.originalPrice)*100) : 0;
+
+  document.getElementById('productContent').innerHTML = `
+    <div class="product-detail">
+      <div class="product-gallery">
+        <div class="main-img" id="mainImg">
+          <img src="${product.images[0]}" alt="${product.name}" id="mainImgTag">
+        </div>
+        ${product.images.length > 1 ? `
+        <div class="product-thumbs">
+          ${product.images.map((img, i) => `
+            <div class="product-thumb ${i===0?'active':''}" onclick="setImg('${img}',this)">
+              <img src="${img}" alt="${product.name}">
+            </div>`).join('')}
+        </div>` : ''}
+      </div>
+
+      <div class="product-info">
+        <nav class="breadcrumb" aria-label="breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="sep">›</span>
+          <a href="shop.html">Shop</a>
+          <span class="sep">›</span>
+          <a href="shop.html?cat=${product.category}">${cat ? cat.name : product.category}</a>
+          <span class="sep">›</span>
+          <span>${product.name}</span>
+        </nav>
+
+        ${product.onOffer ? `<div style="margin-bottom:12px;"><span class="offer-badge" style="position:static;">🔥 MEGA OFFER</span></div>` : ''}
+
+        <h1>${product.name}</h1>
+        <div style="font-size:0.8rem;color:var(--gray);margin-bottom:16px;">SKU: ${product.sku}</div>
+
+        <div class="product-price-block">
+          <span class="current">${fmt(product.price)}</span>
+          ${product.originalPrice ? `<span class="original">${fmt(product.originalPrice)}</span>` : ''}
+          ${discount > 0 ? `<span class="save">Save ${discount}%</span>` : ''}
+        </div>
+
+        <p style="color:var(--gray);margin-bottom:24px;">${product.description}</p>
+
+        <div class="product-features">
+          <h4>Key Features</h4>
+          <div class="feature-tags">
+            ${product.features.map(f => `<span class="feature-tag">✓ ${f}</span>`).join('')}
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray);margin-bottom:10px;">Quantity</label>
+          <div class="qty-selector">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <input type="number" class="qty-input" id="qtyInput" value="1" min="1">
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-lg" onclick="addToCart()" style="flex:1;min-width:180px;">
+            🛒 Add to Cart
+          </button>
+          <a href="cart.html" class="btn btn-dark btn-lg" style="flex:1;min-width:180px;" onclick="addToCart()">
+            Buy Now
+          </a>
+        </div>
+
+        <button class="btn btn-whatsapp btn-block" onclick="orderWhatsApp()">
+          💬 Order This on WhatsApp
+        </button>
+
+        <hr class="divider">
+        <div style="display:flex;flex-wrap:wrap;gap:16px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--gray);">🛡️ 5-Year Guarantee</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--gray);">✅ CE Certified</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--gray);">🚚 Nationwide Delivery</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--gray);">💳 M-PESA Accepted</div>
+        </div>
+      </div>
+    </div>`;
+
+  // Related products
+  const related = getAllProducts()
+    .filter(p => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
+  if (related.length) {
+    document.getElementById('relatedProducts').innerHTML = `
+      <div class="section-header" style="text-align:left;margin-bottom:32px;">
+        <div class="section-tag">More Like This</div>
+        <h3>Related Products</h3>
+      </div>
+      <div class="product-grid">${related.map(p => productCardHTML(p)).join('')}</div>`;
+  }
+}
+
+function setImg(src, el) {
+  document.getElementById('mainImgTag').src = src;
+  document.querySelectorAll('.product-thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function changeQty(delta) {
+  const input = document.getElementById('qtyInput');
+  input.value = Math.max(1, parseInt(input.value) + delta);
+}
+
+function addToCart() {
+  if (!product) return;
+  const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+  Cart.add(product.id, qty);
+}
+
+function orderWhatsApp() {
+  if (!product) return;
+  const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+  const total = product.price * qty;
+  const msg = `Hello Tenacity Locks,\n\nI would like to order:\n${product.name} x${qty} — ${fmt(product.price)}\nTotal: ${fmt(total)}\n\nPlease let me know availability and delivery details.`;
+  window.open(`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+</script>
+
+<script>renderFooter();</script>
+</body>
+</html>

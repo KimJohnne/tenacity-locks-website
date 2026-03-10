@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cart — Tenacity Locks Ltd</title>
+<link rel="icon" type="image/png" href="assets/images/logos/main-logo.png">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>renderNav('');</script>
+
+<div class="page-header">
+  <div class="container">
+    <div class="page-header-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">›</span>
+        <span>Cart</span>
+      </nav>
+      <h1>Shopping Cart</h1>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div id="cartContent"></div>
+  </div>
+</section>
+
+<!-- WhatsApp Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h3>💬 Order via WhatsApp</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div id="orderSummaryBlock" style="background:var(--off-white);border-radius:var(--radius-sm);padding:20px;margin-bottom:24px;font-size:0.9rem;"></div>
+
+    <form id="checkoutForm" onsubmit="submitWhatsApp(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" class="form-control" id="cfName" required placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" class="form-control" id="cfPhone" required placeholder="07XX XXX XXX">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-control" id="cfEmail" placeholder="your@email.com (optional)">
+      </div>
+      <div class="form-group">
+        <label>Delivery Address *</label>
+        <input type="text" class="form-control" id="cfAddress" required placeholder="Town / Estate / Street">
+      </div>
+      <div class="form-group">
+        <label>Exact Location / Landmark</label>
+        <input type="text" class="form-control" id="cfLocation" placeholder="e.g. Next to ABC School, House 5">
+      </div>
+      <div class="form-group">
+        <label>Shipping Zone *</label>
+        <select class="form-control" id="cfShipping" onchange="updateShipping()" required>
+          <option value="">-- Select your area --</option>
+          <option value="Nairobi CBD / Westlands — KShs 200:200">Nairobi CBD / Westlands — KShs 200</option>
+          <option value="Nairobi Suburbs (Kasarani, Embakasi, Langata etc.) — KShs 300:300">Nairobi Suburbs — KShs 300</option>
+          <option value="Kiambu / Thika — KShs 350:350">Kiambu / Thika — KShs 350</option>
+          <option value="Mombasa — KShs 700:700">Mombasa — KShs 700</option>
+          <option value="Kisumu — KShs 650:650">Kisumu — KShs 650</option>
+          <option value="Nakuru — KShs 500:500">Nakuru — KShs 500</option>
+          <option value="Eldoret — KShs 600:600">Eldoret — KShs 600</option>
+          <option value="Other Upcountry — KShs 400:400">Other Upcountry — KShs 400</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>M-PESA Confirmation Message *</label>
+        <textarea class="form-control" id="cfMpesa" rows="4" required placeholder="Paste your M-PESA confirmation SMS here after paying...&#10;e.g. QBT1234567 Confirmed. Ksh2500 sent to TENACITY LOCKS on 10/3/25 at 2:30 PM."></textarea>
+        <p style="font-size:0.75rem;color:var(--gray);margin-top:6px;">
+          Pay via M-PESA: Paybill <strong>222111</strong>, Account <strong>863950</strong>, then paste the confirmation message above.
+        </p>
+      </div>
+
+      <div style="background:var(--off-white);border-radius:var(--radius-sm);padding:16px;margin-bottom:24px;" id="totalBlock"></div>
+
+      <button type="submit" class="btn btn-whatsapp btn-block btn-lg">
+        💬 Send Order on WhatsApp
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+let shippingCost = 0;
+let shippingLabel = '';
+
+function renderCart() {
+  const items = Cart.get();
+  const cartContent = document.getElementById('cartContent');
+
+  if (!items.length) {
+    cartContent.innerHTML = `
+      <div class="empty-cart">
+        <div class="icon">🛒</div>
+        <h3>Your cart is empty</h3>
+        <p style="color:var(--gray);">Looks like you haven't added anything yet.</p>
+        <a href="shop.html" class="btn btn-primary mt-3">Start Shopping</a>
+      </div>`;
+    return;
+  }
+
+  const subtotal = Cart.subtotal();
+  const products = items.map(i => ({ ...i, product: getAllProducts().find(p => p.id === i.id) })).filter(i => i.product);
+
+  cartContent.innerHTML = `
+    <div class="cart-grid" style="display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start;">
+      <div>
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartRows"></tbody>
+        </table>
+        <div style="display:flex;gap:12px;margin-top:24px;">
+          <a href="shop.html" class="btn btn-outline">← Continue Shopping</a>
+          <button class="btn btn-dark" onclick="clearCart()">Clear Cart</button>
+        </div>
+      </div>
+      <div class="cart-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">${fmt(subtotal)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span id="summaryShipping">Calculated at checkout</span></div>
+        <div class="summary-row total"><span>Total</span><span id="summaryTotal">${fmt(subtotal)}</span></div>
+        <button class="btn btn-whatsapp btn-block btn-lg mt-4" onclick="openCheckout()">
+          💬 Order on WhatsApp
+        </button>
+        <p style="font-size:0.75rem;color:var(--gray);text-align:center;margin-top:12px;">You'll complete your order via WhatsApp after confirming M-PESA payment.</p>
+      </div>
+    </div>`;
+
+  // Render rows
+  document.getElementById('cartRows').innerHTML = products.map(({ product, qty }) => `
+    <tr>
+      <td>
+        <div class="cart-product-info">
+          <a href="product.html?id=${product.id}" class="cart-product-img">
+            <img src="${product.image}" alt="${product.name}">
+          </a>
+          <div>
+            <a href="product.html?id=${product.id}" class="cart-product-name">${product.name}</a>
+            <div class="cart-product-sku">SKU: ${product.sku}</div>
+          </div>
+        </div>
+      </td>
+      <td>${fmt(product.price)}</td>
+      <td>
+        <div class="qty-selector" style="transform:scale(0.85);transform-origin:left;">
+          <button class="qty-btn" onclick="changeCartQty('${product.id}',-1)">−</button>
+          <input type="number" class="qty-input" value="${qty}" min="1" onchange="setCartQty('${product.id}',this.value)">
+          <button class="qty-btn" onclick="changeCartQty('${product.id}',1)">+</button>
+        </div>
+      </td>
+      <td style="font-weight:700;">${fmt(product.price * qty)}</td>
+      <td><button onclick="Cart.remove('${product.id}');renderCart();" style="background:none;color:var(--danger);font-size:1.1rem;padding:4px;">✕</button></td>
+    </tr>`).join('');
+}
+
+function changeCartQty(id, delta) {
+  const items = Cart.get();
+  const item = items.find(i => i.id === id);
+  if (item) {
+    if (item.qty + delta < 1) { Cart.remove(id); }
+    else { Cart.updateQty(id, item.qty + delta); }
+    renderCart();
+  }
+}
+
+function setCartQty(id, val) {
+  Cart.updateQty(id, parseInt(val) || 1);
+  renderCart();
+}
+
+function clearCart() {
+  if (confirm('Clear all items from cart?')) { Cart.clear(); renderCart(); }
+}
+
+function openCheckout() {
+  updateOrderSummary();
+  document.getElementById('checkoutModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+
+function updateShipping() {
+  const val = document.getElementById('cfShipping').value;
+  if (!val) { shippingCost = 0; shippingLabel = ''; }
+  else {
+    const parts = val.split(':');
+    shippingLabel = parts[0];
+    shippingCost = parseInt(parts[1]);
+  }
+  updateTotalBlock();
+  // Update summary
+  const ss = document.getElementById('summaryShipping');
+  const st = document.getElementById('summaryTotal');
+  if (ss) ss.textContent = shippingCost > 0 ? fmt(shippingCost) : 'Calculated at checkout';
+  if (st) st.textContent = fmt(Cart.subtotal() + shippingCost);
+}
+
+function updateTotalBlock() {
+  const sub = Cart.subtotal();
+  const total = sub + shippingCost;
+  document.getElementById('totalBlock').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.9rem;"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.9rem;"><span>Shipping</span><span>${shippingCost > 0 ? fmt(shippingCost) : '—'}</span></div>
+    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;margin-top:10px;padding-top:10px;border-top:2px solid var(--gray-light);"><span>Total</span><span style="color:var(--purple);">${fmt(total)}</span></div>`;
+}
+
+function updateOrderSummary() {
+  const items = Cart.get();
+  const products = items.map(i => ({ ...i, product: getAllProducts().find(p => p.id === i.id) })).filter(i => i.product);
+  const rows = products.map(({ product, qty }) =>
+    `<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.85rem;">
+      <span>${product.name} ×${qty}</span>
+      <strong>${fmt(product.price * qty)}</strong>
+    </div>`).join('');
+  document.getElementById('orderSummaryBlock').innerHTML = rows;
+  updateTotalBlock();
+}
+
+function submitWhatsApp(e) {
+  e.preventDefault();
+  const name = document.getElementById('cfName').value;
+  const phone = document.getElementById('cfPhone').value;
+  const email = document.getElementById('cfEmail').value;
+  const address = document.getElementById('cfAddress').value;
+  const location = document.getElementById('cfLocation').value;
+  const mpesa = document.getElementById('cfMpesa').value;
+
+  const items = Cart.get();
+  const products = items.map(i => ({ ...i, product: getAllProducts().find(p => p.id === i.id) })).filter(i => i.product);
+  const sub = Cart.subtotal();
+  const total = sub + shippingCost;
+
+  let msg = products.map(({ product, qty }) => `${product.name} ×${qty} — ${fmt(product.price * qty)}`).join('\n');
+  if (shippingLabel) msg += `\nShipping: ${shippingLabel} — ${fmt(shippingCost)}`;
+  msg += `\nTotal: ${fmt(total)}\n\nFull Name: ${name}\nEmail: ${email || 'N/A'}\nAddress: ${address}\nPhone: ${phone}\nMpesa Message: ${mpesa}\nExact Location: ${location || 'N/A'}`;
+
+  // Save order
+  Orders.save({ name, phone, email, address, location, items: products.map(i => ({ name:i.product.name, qty:i.qty, price:i.product.price })), subtotal:sub, shipping:shippingCost, total });
+
+  window.open(`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  Cart.clear();
+  closeModal();
+  renderCart();
+  Cart.toast('Order sent! Thank you 🎉');
+}
+
+window.addEventListener('cartUpdated', renderCart);
+renderCart();
+</script>
+
+<script>renderFooter();</script>
+</body>
+</html>

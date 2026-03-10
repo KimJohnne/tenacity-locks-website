@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blog — Tenacity Locks Ltd</title>
+<meta name="description" content="Security tips, buying guides, and news from Tenacity Locks Ltd — Kenya's trusted lock brand.">
+<link rel="icon" type="image/png" href="assets/images/logos/main-logo.png">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>renderNav('blog');</script>
+
+<div id="pageContainer"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const postId = params.get('post');
+
+if (postId) {
+  // Single post view
+  const post = getAllBlogPosts().find(p => p.id === postId);
+  document.title = `${post ? post.title : 'Post'} — Tenacity Locks Ltd`;
+  document.getElementById('pageContainer').innerHTML = `
+    <div class="page-header">
+      <div class="container">
+        <div class="page-header-content">
+          <nav class="breadcrumb"><a href="index.html">Home</a><span class="sep">›</span><a href="blog.html">Blog</a><span class="sep">›</span><span>${post ? post.title : 'Article'}</span></nav>
+          <h1>${post ? post.title : 'Article Not Found'}</h1>
+        </div>
+      </div>
+    </div>
+    ${post ? `
+    <section class="section">
+      <div class="container" style="max-width:780px;">
+        <div style="margin-bottom:24px;">
+          <img src="${post.image}" alt="${post.title}" style="width:100%;border-radius:var(--radius-lg);margin-bottom:24px;">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:0.85rem;color:var(--gray);margin-bottom:32px;">
+            <span style="background:rgba(152,20,145,0.1);color:var(--purple);font-weight:600;padding:4px 12px;border-radius:99px;">${post.category}</span>
+            <span>📅 ${post.date}</span>
+            <span>✍️ ${post.author}</span>
+          </div>
+          <div class="blog-post-body">${post.content}</div>
+        </div>
+        <hr class="divider">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <a href="blog.html" class="btn btn-outline">← Back to Blog</a>
+          <div style="display:flex;gap:12px;">
+            <a href="shop.html" class="btn btn-primary">Browse Our Products</a>
+            <a href="https://wa.me/${SITE.whatsapp}" target="_blank" class="btn btn-whatsapp">💬 Ask a Question</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section bg-off">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Keep Reading</div>
+          <h2>More Articles</h2>
+        </div>
+        <div class="grid-3" id="relatedPosts"></div>
+      </div>
+    </section>` : `
+    <section class="section"><div class="container" style="text-align:center;padding:80px 0;">
+      <h3 style="color:var(--gray);">Post not found</h3>
+      <a href="blog.html" class="btn btn-primary mt-3">Back to Blog</a>
+    </div></section>`}`;
+
+  if (post) {
+    const related = getAllBlogPosts().filter(p => p.id !== postId).slice(0,3);
+    document.getElementById('relatedPosts').innerHTML = related.map(p => `
+      <a href="blog.html?post=${p.id}" class="blog-card">
+        <div class="blog-card-img"><img src="${p.image}" alt="${p.title}" loading="lazy"></div>
+        <div class="blog-card-body">
+          <div class="blog-card-meta"><span class="blog-card-cat">${p.category}</span>${p.date}</div>
+          <div class="blog-card-title">${p.title}</div>
+          <p class="blog-card-excerpt">${p.excerpt}</p>
+        </div>
+      </a>`).join('');
+  }
+} else {
+  // Blog listing
+  document.getElementById('pageContainer').innerHTML = `
+    <div class="page-header">
+      <div class="container">
+        <div class="page-header-content">
+          <nav class="breadcrumb"><a href="index.html">Home</a><span class="sep">›</span><span>Blog</span></nav>
+          <h1>Security Tips & News</h1>
+        </div>
+      </div>
+    </div>
+    <section class="section">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-tag">Knowledge Hub</div>
+          <h2>From the Tenacity Blog</h2>
+          <p>Expert advice on home security, lock maintenance, and buying guides from Kenya's leading lock specialists.</p>
+        </div>
+        <div class="grid-3" id="blogGrid"></div>
+      </div>
+    </section>
+    <section class="section" style="background:var(--dark);padding:80px 0;">
+      <div class="container" style="text-align:center;">
+        <h2 style="color:#fff;margin-bottom:16px;">Have a Security Question?</h2>
+        <p style="color:rgba(255,255,255,0.65);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;">Our team of lock experts is available on WhatsApp to answer any question about securing your home or office.</p>
+        <a href="https://wa.me/${SITE.whatsapp}?text=Hello%20Tenacity%20Locks%2C%20I%20have%20a%20question%20about%20home%20security." target="_blank" class="btn btn-whatsapp btn-lg">💬 Chat with an Expert</a>
+      </div>
+    </section>`;
+
+  const posts = getAllBlogPosts();
+  document.getElementById('blogGrid').innerHTML = posts.map(post => `
+    <a href="blog.html?post=${post.id}" class="blog-card reveal">
+      <div class="blog-card-img"><img src="${post.image}" alt="${post.title}" loading="lazy"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-meta"><span class="blog-card-cat">${post.category}</span>${post.date}</div>
+        <div class="blog-card-title">${post.title}</div>
+        <p class="blog-card-excerpt">${post.excerpt}</p>
+        <span class="btn btn-outline btn-sm" style="margin-top:16px;display:inline-flex;">Read More →</span>
+      </div>
+    </a>`).join('');
+}
+</script>
+
+<style>
+.blog-post-body h3 { font-size:1.2rem;margin:28px 0 12px;color:var(--dark); }
+.blog-post-body p { color:var(--gray);margin-bottom:16px;line-height:1.8; }
+.blog-post-body strong { color:var(--dark); }
+</style>
+
+<script>renderFooter();</script>
+</body>
+</html>
