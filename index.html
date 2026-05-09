@@ -11,6 +11,7 @@
 <body>
 
 <script src="assets/js/data.js"></script>
+<script src="assets/js/cms-data.js?v=1"></script>
 <script src="assets/js/ui.js"></script>
 <script>renderNav('home');</script>
 
@@ -21,11 +22,11 @@
   <div class="container">
     <div class="hero-content">
       <div class="hero-tag">🔐 Kenya's #1 Lock Brand</div>
-      <h1>Secure Every Door.<br><span>Trust Every Lock.</span></h1>
-      <p>Premium quality door locks engineered for Kenyan homes and businesses. 5-year guarantee on every product. Delivery nationwide.</p>
+      <h1 id="cmsHeroHeadline">Secure Every Door.<br><span>Trust Every Lock.</span></h1>
+      <p id="cmsHeroSubtext">Premium quality door locks engineered for Kenyan homes and businesses. 5-year guarantee on every product. Delivery nationwide.</p>
       <div class="hero-actions">
         <a href="shop.html" class="btn btn-primary btn-lg">Shop Now</a>
-        <a href="https://wa.me/254711776688?text=Hello%20Tenacity%20Locks%2C%20I%20want%20to%20order." class="btn btn-whatsapp btn-lg" target="_blank">💬 Order on WhatsApp</a>
+        <a href="https://wa.me/254711776688?text=Hello%20Tenacity%20Locks%2C%20I%20want%20to%20order." class="btn btn-whatsapp btn-lg" target="_blank"><img src="assets/images/icons/whatsapp.svg" class="btn-icon" alt=""> Order on WhatsApp</a>
       </div>
       <div class="hero-stats">
         <div class="hero-stat"><div class="num">13+</div><div class="label">Years Experience</div></div>
@@ -64,6 +65,35 @@
   </div>
 </div>
 
+<!-- ── HOME PHOTO SLIDES ── -->
+<section class="section home-offer-slider-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Latest Offers</div>
+      <h2>Tenacity Locks Offers</h2>
+      <p>Swipe through the latest offer photos and promotions from Tenacity Locks.</p>
+    </div>
+    <div class="home-offer-slider reveal" id="homeOfferSlider">
+      <div class="home-slider-track">
+        <div class="home-slide active"><img src="assets/images/hero/home-slides/home-slide-1.jpg" alt="Tenacity Locks offer slide 1" loading="eager"></div>
+        <div class="home-slide"><img src="assets/images/hero/home-slides/home-slide-2.jpg" alt="Tenacity Locks offer slide 2" loading="lazy"></div>
+        <div class="home-slide"><img src="assets/images/hero/home-slides/home-slide-3.jpg" alt="Tenacity Locks offer slide 3" loading="lazy"></div>
+        <div class="home-slide"><img src="assets/images/hero/home-slides/home-slide-4.jpg" alt="Tenacity Locks offer slide 4" loading="lazy"></div>
+        <div class="home-slide"><img src="assets/images/hero/home-slides/home-slide-5.jpg" alt="Tenacity Locks offer slide 5" loading="lazy"></div>
+      </div>
+      <button class="home-slider-control home-slider-prev" type="button" aria-label="Previous slide">‹</button>
+      <button class="home-slider-control home-slider-next" type="button" aria-label="Next slide">›</button>
+      <div class="home-slider-dots">
+        <button class="home-slider-dot active" type="button" aria-label="Go to slide 1" data-slide="0"></button>
+        <button class="home-slider-dot" type="button" aria-label="Go to slide 2" data-slide="1"></button>
+        <button class="home-slider-dot" type="button" aria-label="Go to slide 3" data-slide="2"></button>
+        <button class="home-slider-dot" type="button" aria-label="Go to slide 4" data-slide="3"></button>
+        <button class="home-slider-dot" type="button" aria-label="Go to slide 5" data-slide="4"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── CATEGORIES ── -->
 <section class="section">
   <div class="container">
@@ -100,10 +130,10 @@
       <div style="position:absolute;inset:0;display:flex;align-items:center;padding:clamp(40px,7vw,100px) clamp(32px,7vw,80px);">
         <div style="max-width:640px;">
           <div class="section-tag" style="background:rgba(255,255,255,0.18);color:#fff;margin-bottom:24px;border:1px solid rgba(255,255,255,0.2);">📦 Bulk Orders</div>
-          <h2 style="color:#fff;margin-bottom:24px;font-size:clamp(1.7rem,3.5vw,2.6rem);line-height:1.25;">Having a Big Project?<br>Go Mega on Locks —<br><span style="color:#e0b4dd;">Pay Less Per Lock!</span></h2>
-          <p style="color:rgba(255,255,255,0.90);margin-bottom:40px;font-size:1.05rem;line-height:1.85;">Developers, contractors, and property managers enjoy special bulk pricing. Call us or WhatsApp to get a personalised quote for your project.</p>
+          <h2 id="cmsPromoTitle" style="color:#fff;margin-bottom:24px;font-size:clamp(1.7rem,3.5vw,2.6rem);line-height:1.25;">Having a Big Project?<br>Go Mega on Locks —<br><span style="color:#e0b4dd;">Pay Less Per Lock!</span></h2>
+          <p id="cmsPromoText" style="color:rgba(255,255,255,0.90);margin-bottom:40px;font-size:1.05rem;line-height:1.85;">Developers, contractors, and property managers enjoy special bulk pricing. Call us or WhatsApp to get a personalised quote for your project.</p>
           <div style="display:flex;gap:14px;flex-wrap:wrap;">
-            <a href="https://wa.me/254711776688?text=Hello%2C%20I%20want%20a%20bulk%20order%20quote." class="btn btn-whatsapp btn-lg" target="_blank">💬 WhatsApp a Quote</a>
+            <a href="https://wa.me/254711776688?text=Hello%2C%20I%20want%20a%20bulk%20order%20quote." class="btn btn-whatsapp btn-lg" target="_blank"><img src="assets/images/icons/whatsapp.svg" class="btn-icon" alt=""> WhatsApp a Quote</a>
             <a href="tel:0711776688" class="btn btn-lg" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.35);">📞 Call Us</a>
           </div>
         </div>
@@ -196,12 +226,50 @@
 </section>
 
 <script>
+// ── Apply GitHub CMS homepage settings ──
+const hpSettings = getHomepageSettings();
+if (hpSettings.headline) document.getElementById('cmsHeroHeadline').innerHTML = hpSettings.headline.replace(/\n/g, '<br>');
+if (hpSettings.subtext) document.getElementById('cmsHeroSubtext').textContent = hpSettings.subtext;
+if (hpSettings.promoTitle) document.getElementById('cmsPromoTitle').innerHTML = hpSettings.promoTitle.replace(/\n/g, '<br>');
+if (hpSettings.promoText) document.getElementById('cmsPromoText').textContent = hpSettings.promoText;
+
+
+// ── Home Offer Slider ──
+function initHomeOfferSlider() {
+  const slider = document.getElementById('homeOfferSlider');
+  if (!slider) return;
+  const slides = [...slider.querySelectorAll('.home-slide')];
+  const dots = [...slider.querySelectorAll('.home-slider-dot')];
+  const prev = slider.querySelector('.home-slider-prev');
+  const next = slider.querySelector('.home-slider-next');
+  let current = 0;
+  let timer;
+
+  function showSlide(index) {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+  }
+
+  function startAuto() {
+    clearInterval(timer);
+    timer = setInterval(() => showSlide(current + 1), 4500);
+  }
+
+  prev && prev.addEventListener('click', () => { showSlide(current - 1); startAuto(); });
+  next && next.addEventListener('click', () => { showSlide(current + 1); startAuto(); });
+  dots.forEach(dot => dot.addEventListener('click', () => { showSlide(Number(dot.dataset.slide)); startAuto(); }));
+  startAuto();
+}
+initHomeOfferSlider();
+
 // ── Render Categories ──
 const catImgs = {
   'entry-level': 'assets/images/categories/entry-level.jpg',
   'single-pin-keyless': 'assets/images/products/tm53-black-keyless.jpg',
   'single-pin-ndk': 'assets/images/products/c38-black-keys.jpg',
   'premium-quality': 'assets/images/categories/premium-quality.jpg',
+  'f6-series': 'assets/images/products/f6-series-1.jpg',
   'deadlocks': 'assets/images/categories/deadlocks.jpg',
 };
 document.getElementById('catGrid').innerHTML = getAllCategories()
