@@ -6,6 +6,10 @@
 const ROOT = window.location.pathname.includes('/admin') ? '../' : '';
 
 function renderNav(activePage) {
+  const hp = typeof getHomepageSettings === 'function' ? getHomepageSettings() : {};
+  const siteEmail = hp.email || SITE.email;
+  const sitePhone = hp.phone || SITE.phone1;
+  const sitePhoneHref = sitePhone.replace(/\D/g, '');
   const pages = [
     { href: `${ROOT}index.html`, label: 'Home', key: 'home' },
     { href: `${ROOT}shop.html`, label: 'Shop', key: 'shop' },
@@ -25,19 +29,19 @@ function renderNav(activePage) {
           <!-- Left: social links -->
           <div class="topbar-social">
             <a href="${SITE.instagram}" target="_blank">📸 Instagram</a>
-            <a href="https://wa.me/${SITE.whatsapp}" target="_blank">💬 WhatsApp</a>
+            <a href="https://wa.me/${SITE.whatsapp}" target="_blank"><img src="${ROOT}assets/images/icons/whatsapp.svg" class="wa-btn-icon" alt=""> WhatsApp</a>
             <a href="${SITE.mapsLink}" target="_blank">📍 Find Us</a>
           </div>
 
           <!-- Centre: email (absolutely centred) -->
           <div class="topbar-email">
             <span>✉️</span>
-            <a href="mailto:${SITE.email}">${SITE.email}</a>
+            <a href="mailto:${siteEmail}">${siteEmail}</a>
           </div>
 
           <!-- Right: phone numbers -->
           <div class="topbar-phones">
-            <a href="tel:0711776688">📞 ${SITE.phone1}</a>
+            <a href="tel:${sitePhoneHref}">📞 ${sitePhone}</a>
             <span class="sep">|</span>
             <a href="tel:0729863950">${SITE.phone2}</a>
           </div>
@@ -109,6 +113,10 @@ function renderNav(activePage) {
 }
 
 function renderFooter() {
+  const hp = typeof getHomepageSettings === 'function' ? getHomepageSettings() : {};
+  const siteEmail = hp.email || SITE.email;
+  const sitePhone = hp.phone || SITE.phone1;
+  const sitePhoneHref = sitePhone.replace(/\D/g, '');
   const year = new Date().getFullYear();
   document.body.insertAdjacentHTML('beforeend', `
     <footer class="footer">
@@ -120,7 +128,7 @@ function renderFooter() {
               <p>Kenya's trusted name in door security since 2011. Quality locks for homes, offices, and commercial properties across the country.</p>
               <div class="footer-social">
                 <a href="${SITE.instagram}" target="_blank" title="Instagram">📸</a>
-                <a href="https://wa.me/${SITE.whatsapp}" target="_blank" title="WhatsApp">💬</a>
+                <a href="https://wa.me/${SITE.whatsapp}" target="_blank" title="WhatsApp"><img src="${ROOT}assets/images/icons/whatsapp.svg" class="wa-btn-icon" alt="WhatsApp"></a>
                 <a href="${SITE.mapsLink}" target="_blank" title="Location">📍</a>
                 <a href="${SITE.reviewLink}" target="_blank" title="Review Us">⭐</a>
               </div>
@@ -148,8 +156,8 @@ function renderFooter() {
             <div class="footer-col">
               <h4>Contact Us</h4>
               <div class="footer-contact-item"><span>📍</span><span>${SITE.addressFull}</span></div>
-              <div class="footer-contact-item"><span>📞</span><span><a href="tel:0711776688">${SITE.phone1}</a> / <a href="tel:0729863950">${SITE.phone2}</a></span></div>
-              <div class="footer-contact-item"><span>✉️</span><span><a href="mailto:${SITE.email}">${SITE.email}</a></span></div>
+              <div class="footer-contact-item"><span>📞</span><span><a href="tel:${sitePhoneHref}">${sitePhone}</a> / <a href="tel:0729863950">${SITE.phone2}</a></span></div>
+              <div class="footer-contact-item"><span>✉️</span><span><a href="mailto:${siteEmail}">${siteEmail}</a></span></div>
               <div class="footer-contact-item"><span>🕐</span><span>Mon–Sat: 8am – 6pm</span></div>
             </div>
           </div>
@@ -165,7 +173,7 @@ function renderFooter() {
 
     <!-- Floating WhatsApp -->
     <a href="https://wa.me/${SITE.whatsapp}?text=Hello%20Tenacity%20Locks%2C%20I%20would%20like%20to%20enquire%20about%20your%20products."
-       class="wa-float" target="_blank" title="Chat on WhatsApp">💬</a>
+       class="wa-float" target="_blank" title="Chat on WhatsApp"><img src="${ROOT}assets/images/icons/whatsapp.svg" alt="WhatsApp"></a>
   `);
 }
 
