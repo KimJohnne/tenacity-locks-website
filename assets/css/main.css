@@ -960,6 +960,7 @@ textarea.form-control { resize: vertical; min-height: 120px; }
   transition: var(--transition);
 }
 .wa-float:hover { transform: scale(1.12); }
+.wa-float img { width: 34px; height: 34px; display:block; }
 @keyframes waPulse {
   0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.5); }
   50% { box-shadow: 0 4px 40px rgba(37,211,102,0.8); }
