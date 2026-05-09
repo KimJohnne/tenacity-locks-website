@@ -118,7 +118,21 @@ p:last-child { margin-bottom: 0; }
 .btn-block { width: 100%; justify-content: center; }
 .btn-whatsapp { background: #25d366; color: #fff; }
 .btn-whatsapp:hover { background: #1db954; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,211,102,0.4); }
-.btn-icon { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 50%; }
+.btn-icon,
+.wa-btn-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  display: inline-block;
+  object-fit: contain;
+  vertical-align: middle;
+  flex: 0 0 18px;
+}
+.btn-lg .btn-icon { width: 20px; height: 20px; min-width: 20px; }
+.btn-whatsapp .btn-icon { color: #fff; }
+.topbar-social .wa-btn-icon { width: 14px; height: 14px; min-width: 14px; margin-right: 4px; }
+.footer-social .wa-btn-icon { width: 18px; height: 18px; min-width: 18px; }
+
 
 /* ── Top Bar ── */
 /* ── Top Bar ── */
@@ -397,6 +411,155 @@ body { padding-top: var(--header-total); }
 }
 .marquee-track span::after { content: '◆'; color: rgba(255,255,255,0.3); }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+
+
+/* ── Home Offer Slider (clean, compact, one-slide carousel) ── */
+.home-offer-slider-section {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff 0%, #fbf5fb 100%);
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+.home-offer-slider-section .section-header {
+  margin-bottom: 26px;
+}
+.home-offer-slider {
+  position: relative;
+  width: min(100%, 1060px);
+  height: clamp(280px, 42vw, 480px);
+  margin: 0 auto;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #160014;
+  border: 1px solid rgba(152,20,145,0.20);
+  box-shadow: 0 24px 70px rgba(40,0,38,0.18);
+  isolation: isolate;
+}
+.home-slider-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.home-slide {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(1.035);
+  transition: opacity 0.65s ease, transform 0.9s ease, visibility 0s linear 0.65s;
+  background: #160014;
+}
+.home-slide.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+  transition-delay: 0s;
+  z-index: 2;
+}
+.home-slide img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+.home-offer-slider::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(20,0,18,0.42) 0%, transparent 22%, transparent 78%, rgba(20,0,18,0.25) 100%),
+    linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.28) 100%);
+}
+.home-offer-slider::after {
+  content: 'Swipe offers';
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+  z-index: 5;
+  color: #fff;
+  background: rgba(152,20,145,0.82);
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.home-slider-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.94);
+  color: var(--purple);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+  display: grid;
+  place-items: center;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.home-slider-control:hover { background: var(--purple); color: #fff; }
+.home-slider-prev { left: 18px; }
+.home-slider-next { right: 18px; }
+.home-slider-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.42);
+  border: 1px solid rgba(255,255,255,0.16);
+  backdrop-filter: blur(10px);
+}
+.home-slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 0;
+  padding: 0;
+  background: rgba(255,255,255,0.50);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.home-slider-dot.active { width: 26px; background: #fff; }
+@media (max-width: 768px) {
+  .home-offer-slider-section { padding-top: 44px; padding-bottom: 44px; }
+  .home-offer-slider { height: clamp(260px, 70vw, 360px); border-radius: 22px; }
+  .home-slider-control { width: 36px; height: 36px; font-size: 1.45rem; }
+  .home-slider-prev { left: 10px; }
+  .home-slider-next { right: 10px; }
+  .home-offer-slider::after { left: 14px; bottom: 14px; font-size: 0.62rem; padding: 7px 11px; }
+  .home-slider-dots { bottom: 14px; }
+}
+@media (max-width: 480px) {
+  .home-offer-slider { height: 300px; }
+  .home-offer-slider-section .section-header p { display: none; }
+  .home-slider-dots { gap: 6px; padding: 7px 9px; }
+  .home-slider-dot { width: 7px; height: 7px; }
+  .home-slider-dot.active { width: 20px; }
+}
 
 /* ── Product Cards ── */
 .product-grid {
@@ -947,23 +1110,32 @@ textarea.form-control { resize: vertical; min-height: 120px; }
 
 /* ── Floating WhatsApp ── */
 .wa-float {
-  position: fixed; bottom: 32px; right: 32px;
-  width: 60px; height: 60px;
+  position: fixed;
+  bottom: 26px;
+  right: 26px;
+  width: 56px;
+  height: 56px;
   background: #25d366;
+  border: 3px solid #fff;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #fff;
-  box-shadow: 0 4px 20px rgba(37,211,102,0.5);
-  z-index: 500;
+  box-shadow: 0 10px 28px rgba(37,211,102,0.38);
+  z-index: 1500;
   animation: waPulse 3s infinite;
-  transition: var(--transition);
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.wa-float:hover { transform: scale(1.12); }
-.wa-float img { width: 34px; height: 34px; display:block; }
+.wa-float:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 14px 36px rgba(37,211,102,0.48); }
+.wa-float img { width: 27px; height: 27px; display:block; }
 @keyframes waPulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.5); }
-  50% { box-shadow: 0 4px 40px rgba(37,211,102,0.8); }
+  0%, 100% { box-shadow: 0 10px 28px rgba(37,211,102,0.38); }
+  50% { box-shadow: 0 10px 38px rgba(37,211,102,0.62); }
+}
+@media (max-width: 600px) {
+  .wa-float { width: 50px; height: 50px; right: 16px; bottom: 16px; }
+  .wa-float img { width: 24px; height: 24px; }
 }
 
 /* ── Toast ── */
@@ -1233,3 +1405,12 @@ textarea.form-control { resize: vertical; min-height: 120px; }
   .nav-logo img { height: 20px; }
   .cart-btn { padding: 8px 14px; font-size: 0.78rem; }
 }
+
+
+/* Final WhatsApp/icon safeguards */
+.btn img.btn-icon, img.wa-btn-icon { max-width: 20px !important; max-height: 20px !important; width: 20px !important; height: 20px !important; object-fit: contain !important; display: inline-block !important; }
+.topbar-social img.wa-btn-icon { max-width: 14px !important; max-height: 14px !important; width: 14px !important; height: 14px !important; }
+.footer-social img.wa-btn-icon { max-width: 18px !important; max-height: 18px !important; width: 18px !important; height: 18px !important; }
+.wa-float img { max-width: 27px !important; max-height: 27px !important; width: 27px !important; height: 27px !important; }
+.home-offer-slider .home-slide:not(.active) { opacity: 0 !important; visibility: hidden !important; }
+.home-offer-slider .home-slide.active { opacity: 1 !important; visibility: visible !important; }
