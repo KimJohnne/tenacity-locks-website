@@ -29,7 +29,7 @@ function renderNav(activePage) {
           <!-- Left: social links -->
           <div class="topbar-social">
             <a href="${SITE.instagram}" target="_blank">📸 Instagram</a>
-            <a href="https://wa.me/${SITE.whatsapp}" target="_blank"><img src="${ROOT}assets/images/icons/whatsapp.svg" class="wa-btn-icon" alt=""> WhatsApp</a>
+            <a href="https://wa.me/${SITE.whatsapp}" target="_blank"><img src="${ROOT}assets/images/icons/whatsapp-white.svg" class="wa-btn-icon" alt=""> WhatsApp</a>
             <a href="${SITE.mapsLink}" target="_blank">📍 Find Us</a>
           </div>
 
@@ -128,7 +128,7 @@ function renderFooter() {
               <p>Kenya's trusted name in door security since 2011. Quality locks for homes, offices, and commercial properties across the country.</p>
               <div class="footer-social">
                 <a href="${SITE.instagram}" target="_blank" title="Instagram">📸</a>
-                <a href="https://wa.me/${SITE.whatsapp}" target="_blank" title="WhatsApp"><img src="${ROOT}assets/images/icons/whatsapp.svg" class="wa-btn-icon" alt="WhatsApp"></a>
+                <a href="https://wa.me/${SITE.whatsapp}" target="_blank" title="WhatsApp"><img src="${ROOT}assets/images/icons/whatsapp-white.svg" class="wa-btn-icon" alt="WhatsApp"></a>
                 <a href="${SITE.mapsLink}" target="_blank" title="Location">📍</a>
                 <a href="${SITE.reviewLink}" target="_blank" title="Review Us">⭐</a>
               </div>
@@ -173,7 +173,7 @@ function renderFooter() {
 
     <!-- Floating WhatsApp -->
     <a href="https://wa.me/${SITE.whatsapp}?text=Hello%20Tenacity%20Locks%2C%20I%20would%20like%20to%20enquire%20about%20your%20products."
-       class="wa-float" target="_blank" title="Chat on WhatsApp"><img src="${ROOT}assets/images/icons/whatsapp.svg" alt="WhatsApp"></a>
+       class="wa-float" target="_blank" title="Chat on WhatsApp"><img src="${ROOT}assets/images/icons/whatsapp-white.svg" alt="WhatsApp"></a>
   `);
 }
 
