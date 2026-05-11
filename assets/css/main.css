@@ -1414,3 +1414,23 @@ textarea.form-control { resize: vertical; min-height: 120px; }
 .wa-float img { max-width: 27px !important; max-height: 27px !important; width: 27px !important; height: 27px !important; }
 .home-offer-slider .home-slide:not(.active) { opacity: 0 !important; visibility: hidden !important; }
 .home-offer-slider .home-slide.active { opacity: 1 !important; visibility: visible !important; }
+
+/* Contact page WhatsApp CTA button */
+.contact-whatsapp-btn {
+  min-height: 54px;
+  border-radius: 18px;
+  gap: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.28);
+}
+.contact-whatsapp-btn .btn-icon {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+}
+.contact-whatsapp-btn:hover {
+  box-shadow: 0 14px 32px rgba(37, 211, 102, 0.36);
+}
