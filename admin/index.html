@@ -40,6 +40,16 @@
   .compare-controls select:focus, .compare-controls input:focus { border-color:var(--purple); outline:none; }
   /* ── Monthly table ── */
   .month-row-highlight td { background: rgba(152,20,145,0.05)!important; font-weight:600; }
+  .admin-upload-box {
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:12px; border:1px dashed rgba(152,20,145,0.35); border-radius:var(--radius-sm); background:rgba(152,20,145,0.035);
+  }
+  .upload-status { font-size:0.78rem; color:var(--gray); }
+  .admin-image-preview {
+    margin-top:12px; width:150px; height:150px; border-radius:14px; overflow:hidden;
+    border:1px solid var(--gray-light); background:#fff; box-shadow:var(--shadow-sm);
+  }
+  .admin-image-preview img { width:100%; height:100%; object-fit:cover; display:block; }
   @media (max-width: 768px) {
     .admin-sidebar { position: fixed; left: -260px; top: 0; bottom: 0; z-index: 999; transition: left 0.3s; }
     .admin-sidebar.open { left: 0; display: block; }
@@ -208,7 +218,18 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Category *</label><select class="form-control" id="pfCategory"></select></div>
-          <div class="form-group"><label>Image Path</label><input type="text" class="form-control" id="pfImage" placeholder="assets/images/products/…"></div>
+          <div class="form-group">
+            <label>Product Image</label>
+            <input type="text" class="form-control" id="pfImage" placeholder="assets/images/products/…" style="margin-bottom:10px;">
+            <div class="admin-upload-box">
+              <input type="file" id="pfImageUpload" accept="image/*" onchange="handleProductImageSelected()" style="display:none;">
+              <button type="button" onclick="document.getElementById('pfImageUpload').click()" class="btn btn-outline btn-sm">Choose Image From Device</button>
+              <button type="button" onclick="uploadProductImageNow()" class="btn btn-primary btn-sm">Upload Image to GitHub</button>
+              <span id="pfUploadStatus" class="upload-status">No image selected</span>
+            </div>
+            <div id="pfImagePreview" class="admin-image-preview hidden"></div>
+            <small style="display:block;color:var(--gray);font-size:0.75rem;margin-top:8px;line-height:1.5;">Choose an image from your device. The admin will upload it into <strong>assets/images/products/</strong> and fill this path automatically.</small>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Price (KShs) *</label><input type="number" class="form-control" id="pfPrice"></div>
@@ -269,7 +290,17 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Author</label><input type="text" class="form-control" id="bfAuthor" value="Tenacity Locks Team"></div>
-          <div class="form-group"><label>Featured Image Path</label><input type="text" class="form-control" id="bfImage" placeholder="assets/images/…"></div>
+          <div class="form-group">
+            <label>Featured Image</label>
+            <input type="text" class="form-control" id="bfImage" placeholder="assets/images/…" style="margin-bottom:10px;">
+            <div class="admin-upload-box">
+              <input type="file" id="bfImageUpload" accept="image/*" onchange="handleBlogImageSelected()" style="display:none;">
+              <button type="button" onclick="document.getElementById('bfImageUpload').click()" class="btn btn-outline btn-sm">Choose Blog Image</button>
+              <button type="button" onclick="uploadBlogImageNow()" class="btn btn-primary btn-sm">Upload Image to GitHub</button>
+              <span id="bfUploadStatus" class="upload-status">No image selected</span>
+            </div>
+            <div id="bfImagePreview" class="admin-image-preview hidden"></div>
+          </div>
         </div>
         <div class="form-group"><label>Excerpt *</label><textarea class="form-control" id="bfExcerpt" rows="2"></textarea></div>
         <div class="form-group"><label>Content (HTML allowed) *</label><textarea class="form-control" id="bfContent" rows="10"></textarea></div>
@@ -384,6 +415,115 @@ async function githubRequest(path, options = {}) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || `GitHub API error ${res.status}`);
   return data;
+}
+
+function slugifyFileName(name) {
+  const dot = name.lastIndexOf('.');
+  const rawBase = dot > -1 ? name.slice(0, dot) : name;
+  const ext = dot > -1 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : 'jpg';
+  const safeBase = rawBase.toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'image';
+  return `${Date.now()}-${safeBase}.${ext || 'jpg'}`;
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      resolve(result.includes(',') ? result.split(',')[1] : result);
+    };
+    reader.onerror = () => reject(reader.error || new Error('Could not read the selected file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function setUploadStatus(id, message, ok = true) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = message || '';
+  el.style.color = ok ? 'var(--success)' : 'var(--danger)';
+}
+
+function previewSelectedImage(inputId, previewId, statusId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  const file = input?.files?.[0];
+  if (!file) {
+    setUploadStatus(statusId, 'No image selected', true);
+    if (preview) preview.classList.add('hidden');
+    return;
+  }
+  if (!file.type.startsWith('image/')) {
+    setUploadStatus(statusId, 'Please choose a valid image file.', false);
+    input.value = '';
+    if (preview) preview.classList.add('hidden');
+    return;
+  }
+  setUploadStatus(statusId, `Selected: ${file.name}`, true);
+  if (preview) {
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Selected image preview">`;
+    preview.classList.remove('hidden');
+  }
+}
+
+async function uploadImageToGithub(file, folder, statusId) {
+  if (!file) throw new Error('Choose an image first.');
+  if (!file.type.startsWith('image/')) throw new Error('Please choose a valid image file.');
+  saveGithubSettings();
+  const cfg = getGithubConfig();
+  if (!cfg.owner || !cfg.repo || !cfg.branch || !cfg.token) {
+    throw new Error('GitHub settings are missing. Open Homepage → GitHub CMS Connection and save them first.');
+  }
+  const fileName = slugifyFileName(file.name);
+  const targetPath = `${folder.replace(/\/$/, '')}/${fileName}`;
+  setUploadStatus(statusId, 'Uploading image to GitHub…', true);
+  const content = await fileToBase64(file);
+  await githubRequest(`contents/${targetPath}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      message: `Upload image: ${fileName}`,
+      content,
+      branch: cfg.branch
+    })
+  });
+  setUploadStatus(statusId, `Uploaded: ${targetPath}`, true);
+  return targetPath;
+}
+
+function handleProductImageSelected() {
+  previewSelectedImage('pfImageUpload', 'pfImagePreview', 'pfUploadStatus');
+}
+
+async function uploadProductImageNow() {
+  try {
+    const file = document.getElementById('pfImageUpload')?.files?.[0];
+    const path = await uploadImageToGithub(file, 'assets/images/products', 'pfUploadStatus');
+    document.getElementById('pfImage').value = path;
+    return path;
+  } catch (err) {
+    setUploadStatus('pfUploadStatus', err.message, false);
+    alert(err.message);
+    throw err;
+  }
+}
+
+function handleBlogImageSelected() {
+  previewSelectedImage('bfImageUpload', 'bfImagePreview', 'bfUploadStatus');
+}
+
+async function uploadBlogImageNow() {
+  try {
+    const file = document.getElementById('bfImageUpload')?.files?.[0];
+    const path = await uploadImageToGithub(file, 'assets/images/blog', 'bfUploadStatus');
+    document.getElementById('bfImage').value = path;
+    return path;
+  } catch (err) {
+    setUploadStatus('bfUploadStatus', err.message, false);
+    alert(err.message);
+    throw err;
+  }
 }
 
 function makeCmsFileContent() {
@@ -853,6 +993,10 @@ function showProductForm(id) {
     document.getElementById('pfSku').value = p.sku || '';
     document.getElementById('pfCategory').value = p.category;
     document.getElementById('pfImage').value = p.image;
+    document.getElementById('pfImageUpload').value = '';
+    document.getElementById('pfUploadStatus').textContent = 'Current image path loaded';
+    document.getElementById('pfImagePreview').innerHTML = p.image ? `<img src="../${p.image}" alt="Product preview">` : '';
+    document.getElementById('pfImagePreview').classList.toggle('hidden', !p.image);
     document.getElementById('pfPrice').value = p.price;
     document.getElementById('pfOriginalPrice').value = p.originalPrice || '';
     document.getElementById('pfDescription').value = p.description;
@@ -862,6 +1006,11 @@ function showProductForm(id) {
   } else {
     document.getElementById('productFormTitle').textContent = 'Add Product';
     ['pfName','pfSku','pfImage','pfPrice','pfOriginalPrice','pfDescription','pfFeatures'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('pfImageUpload').value = '';
+    document.getElementById('pfUploadStatus').textContent = 'No image selected';
+    document.getElementById('pfUploadStatus').style.color = 'var(--gray)';
+    document.getElementById('pfImagePreview').classList.add('hidden');
+    document.getElementById('pfImagePreview').innerHTML = '';
     document.getElementById('pfOnOffer').checked = false;
     document.getElementById('pfEditId').value = '';
   }
@@ -872,6 +1021,11 @@ function hideProductForm() { document.getElementById('productForm').classList.ad
 
 async function saveProduct() {
   const editId = document.getElementById('pfEditId').value;
+  const selectedImage = document.getElementById('pfImageUpload')?.files?.[0];
+  if (selectedImage) {
+    try { await uploadProductImageNow(); }
+    catch (err) { return; }
+  }
   const product = {
     id: editId || 'prod-' + Date.now(),
     name: document.getElementById('pfName').value,
@@ -996,12 +1150,22 @@ function showBlogForm(id) {
     document.getElementById('bfCategory').value = post.category;
     document.getElementById('bfAuthor').value = post.author;
     document.getElementById('bfImage').value = post.image;
+    document.getElementById('bfImageUpload').value = '';
+    document.getElementById('bfUploadStatus').textContent = 'Current image path loaded';
+    document.getElementById('bfUploadStatus').style.color = 'var(--gray)';
+    document.getElementById('bfImagePreview').innerHTML = post.image ? `<img src="../${post.image}" alt="Blog image preview">` : '';
+    document.getElementById('bfImagePreview').classList.toggle('hidden', !post.image);
     document.getElementById('bfExcerpt').value = post.excerpt;
     document.getElementById('bfContent').value = post.content;
     document.getElementById('bfEditId').value = id;
   } else {
     document.getElementById('blogFormTitle').textContent = 'New Post';
     ['bfTitle','bfCategory','bfImage','bfExcerpt','bfContent'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('bfImageUpload').value = '';
+    document.getElementById('bfUploadStatus').textContent = 'No image selected';
+    document.getElementById('bfUploadStatus').style.color = 'var(--gray)';
+    document.getElementById('bfImagePreview').classList.add('hidden');
+    document.getElementById('bfImagePreview').innerHTML = '';
     document.getElementById('bfAuthor').value = 'Tenacity Locks Team';
     document.getElementById('bfEditId').value = '';
   }
@@ -1012,6 +1176,11 @@ function hideBlogForm() { document.getElementById('blogForm').classList.add('hid
 
 async function saveBlogPost() {
   const editId = document.getElementById('bfEditId').value;
+  const selectedImage = document.getElementById('bfImageUpload')?.files?.[0];
+  if (selectedImage) {
+    try { await uploadBlogImageNow(); }
+    catch (err) { return; }
+  }
   const post = {
     id: editId || 'post-' + Date.now(),
     title: document.getElementById('bfTitle').value,
