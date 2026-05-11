@@ -43,3 +43,26 @@ Current login remains the same as the original project:
 ## GitHub Pages note
 
 After saving changes, GitHub Pages can take a short time to show the update globally. If you do not see the change immediately, refresh after a few minutes or hard refresh the page.
+
+## Direct image uploads from the admin panel
+
+The admin panel now supports direct image uploads to GitHub for products and blog posts.
+
+### Product image upload
+1. Open the admin panel.
+2. Go to **Products**.
+3. Click **Add Product** or **Edit**.
+4. Under **Product Image**, click **Choose Image From Device**.
+5. Select the image from your computer/phone.
+6. Click **Upload Image to GitHub**.
+7. The image will be uploaded to `assets/images/products/` and the image path field will be filled automatically.
+8. Click **Save Product** to publish the product data.
+
+### Blog image upload
+1. Go to **Blog Posts**.
+2. Click **New Post** or **Edit**.
+3. Under **Featured Image**, choose an image and upload it to GitHub.
+4. The image will be uploaded to `assets/images/blog/` and the image path field will be filled automatically.
+
+### Important
+The GitHub token still needs **Contents: Read and write** permission because image uploads create new files inside the repository.
