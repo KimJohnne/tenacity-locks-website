@@ -21,8 +21,7 @@ const SITE = {
 
 const CATEGORIES = [
   { id: "all", name: "All Products" },
-  { id: "entry-level", name: "Entry Level Locks" },
-  { id: "single-pin-keyless", name: "Single Pin Keyless Locks" },
+  { id: "entry-level", name: "TB68 Series MAIN DOOR ENTRY LOCKS" },
   { id: "single-pin-ndk", name: "THE TM53 SERIES INTERNAL DOOR LOCKS ON OFFER!!!" },
   { id: "premium-quality", name: "Premium Quality Internal Door Locks" },
   { id: "f6-series", name: "F6 series 3-PIN locks with Non-duplicatable keys" },
@@ -60,12 +59,25 @@ const PRODUCTS = [
     features: ["5 Keys Included","CE Certified","Anti-pick cylinder","5-year guarantee","MCF Finish"],
     sku: "TB68-MCF",
   },
+  {
+    id: "tb68-sncp",
+    name: "Tenacity Main Door Entry Lock TB68 SNCP",
+    category: "entry-level",
+    price: 4000,
+    originalPrice: 5000,
+    onOffer: true,
+    image: "assets/images/products/tb68-sncp.jpg",
+    images: ["assets/images/products/tb68-sncp.jpg"],
+    description: "Tenacity TB68 SNCP main door entry lock on offer. Durable main door lock with keys included and premium silver finish.",
+    features: ["5 Keys Included","CE Certified","Anti-pick cylinder","5-year guarantee","SNCP Finish"],
+    sku: "TB68-SNCP",
+  },
 
-  // ─── SINGLE PIN KEYLESS LOCKS ─────────────────────────────
+  // ─── TM53 SERIES INTERNAL DOOR LOCKS ON OFFER — KEYLESS MOVED HERE ─
   {
     id: "tm53-black-keyless",
     name: "TM53 Black Keyless Bathroom Lock",
-    category: "single-pin-keyless",
+    category: "single-pin-ndk",
     price: 1500,
     originalPrice: 2000,
     onOffer: true,
@@ -78,7 +90,7 @@ const PRODUCTS = [
   {
     id: "tm53-mab-keyless",
     name: "TM53 MAB Keyless Bathroom Lock",
-    category: "single-pin-keyless",
+    category: "single-pin-ndk",
     price: 1500,
     originalPrice: 2000,
     onOffer: true,
@@ -91,7 +103,7 @@ const PRODUCTS = [
   {
     id: "tm53-mcf-keyless",
     name: "TM53 MCF Keyless Bathroom Lock",
-    category: "single-pin-keyless",
+    category: "single-pin-ndk",
     price: 1500,
     originalPrice: 2000,
     onOffer: true,
@@ -104,7 +116,7 @@ const PRODUCTS = [
   {
     id: "tm53-mac-keyless",
     name: "TM53 MAC Keyless Bathroom Lock",
-    category: "single-pin-keyless",
+    category: "single-pin-ndk",
     price: 1500,
     originalPrice: 2000,
     onOffer: true,
@@ -115,7 +127,7 @@ const PRODUCTS = [
     sku: "TM53-MAC-KL",
   },
 
-  // ─── SINGLE PIN LOCKS — NDK ───────────────────────────────
+  // ─── TM53 SERIES INTERNAL DOOR LOCKS ON OFFER ─────────────────────
   {
     id: "tm53-black-keys",
     name: "TM53 Black — Keys Both Sides",
@@ -145,7 +157,7 @@ const PRODUCTS = [
   {
     id: "c38-black-keyless",
     name: "Tenacity C38 Black Keyless Bathroom Lock",
-    category: "single-pin-keyless",
+    category: "single-pin-ndk",
     price: 3000,
     originalPrice: null,
     onOffer: false,
@@ -171,7 +183,7 @@ const PRODUCTS = [
   {
     id: "c38-ss-keyless",
     name: "Tenacity C38 Stainless Steel Keyless Bathroom Lock",
-    category: "single-pin-keyless",
+    category: "single-pin-ndk",
     price: 3000,
     originalPrice: null,
     onOffer: false,

@@ -146,9 +146,8 @@ function renderFooter() {
             <div class="footer-col">
               <h4>Categories</h4>
               <ul>
-                <li><a href="${ROOT}shop.html?cat=entry-level">Entry Level Locks</a></li>
-                <li><a href="${ROOT}shop.html?cat=single-pin-keyless">Keyless Locks</a></li>
-                <li><a href="${ROOT}shop.html?cat=single-pin-ndk">NDK Locks</a></li>
+                <li><a href="${ROOT}shop.html?cat=entry-level">TB68 Series MAIN DOOR ENTRY LOCKS</a></li>
+                <li><a href="${ROOT}shop.html?cat=single-pin-ndk">THE TM53 SERIES INTERNAL DOOR LOCKS ON OFFER!!!</a></li>
                 <li><a href="${ROOT}shop.html?cat=premium-quality">Premium Quality</a></li>
                 <li><a href="${ROOT}shop.html?cat=deadlocks">Deadlocks</a></li>
               </ul>
