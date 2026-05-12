@@ -331,6 +331,7 @@
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
           <button onclick="saveGithubSettings()" class="btn btn-primary">Save GitHub Settings</button>
           <button onclick="testGithubConnection()" class="btn btn-outline">Test Connection</button>
+          <button onclick="loadLatestCmsFromGithub(true)" class="btn btn-outline">Load Latest Website Data</button>
           <span id="ghStatus" style="font-size:0.86rem;color:var(--gray);"></span>
         </div>
       </div>
@@ -527,42 +528,201 @@ async function uploadBlogImageNow() {
   }
 }
 
-function makeCmsFileContent() {
-  const data = {
-    customProducts: cmsData().customProducts || [],
-    customCategories: cmsData().customCategories || [],
-    customBlog: cmsData().customBlog || [],
-    homepageSettings: cmsData().homepageSettings || {},
-    updatedAt: new Date().toISOString()
+function normalizeCmsData(data = {}) {
+  return {
+    customProducts: Array.isArray(data.customProducts) ? data.customProducts : [],
+    customCategories: Array.isArray(data.customCategories) ? data.customCategories : [],
+    customBlog: Array.isArray(data.customBlog) ? data.customBlog : [],
+    homepageSettings: data.homepageSettings && typeof data.homepageSettings === 'object' ? data.homepageSettings : {},
+    updatedAt: data.updatedAt || null
   };
-  return `// ============================================================\n// TENACITY LOCKS LTD — GitHub CMS Data\n// This file is updated by /admin/index.html through the GitHub API.\n// Do not delete it. Public pages read this file globally.\n// ============================================================\nwindow.TENACITY_CMS_DATA = ${JSON.stringify(data, null, 2)};\n`;
 }
 
-async function saveCMSData(commitMessage) {
-  saveGithubSettings();
-  setGhStatus('Saving to GitHub…', true);
-  const cfg = getGithubConfig();
-  const current = await githubRequest(`contents/${CMS_FILE_PATH}?ref=${encodeURIComponent(cfg.branch)}`);
-  const content = makeCmsFileContent();
-  const encoded = btoa(unescape(encodeURIComponent(content)));
-  await githubRequest(`contents/${CMS_FILE_PATH}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      message: commitMessage || 'Update website CMS data',
-      content: encoded,
-      sha: current.sha,
-      branch: cfg.branch
-    })
+function getLocalCmsSnapshot() {
+  return normalizeCmsData(JSON.parse(JSON.stringify(cmsData() || {})));
+}
+
+function mergeByIdForCms(remoteItems = [], localItems = []) {
+  const map = new Map();
+  (remoteItems || []).forEach(item => { if (item && item.id) map.set(item.id, item); });
+  (localItems || []).forEach(item => { if (item && item.id) map.set(item.id, { ...(map.get(item.id) || {}), ...item }); });
+  return Array.from(map.values());
+}
+
+function mergeCmsSnapshots(remoteData, localData) {
+  const remote = normalizeCmsData(remoteData);
+  const local = normalizeCmsData(localData);
+  return normalizeCmsData({
+    customProducts: mergeByIdForCms(remote.customProducts, local.customProducts),
+    customCategories: mergeByIdForCms(remote.customCategories, local.customCategories),
+    customBlog: mergeByIdForCms(remote.customBlog, local.customBlog),
+    homepageSettings: { ...remote.homepageSettings, ...local.homepageSettings },
+    updatedAt: new Date().toISOString()
   });
-  setGhStatus('Saved to GitHub. GitHub Pages may take 1–3 minutes to update globally.', true);
+}
+
+function applyCmsMutation(baseData, mutation = null) {
+  const data = normalizeCmsData(JSON.parse(JSON.stringify(baseData || {})));
+  if (!mutation || !mutation.type) return data;
+
+  if (mutation.type === 'product') {
+    if (mutation.action === 'delete') data.customProducts = data.customProducts.filter(p => p.id !== mutation.id);
+    if (mutation.action === 'upsert' && mutation.item) data.customProducts = mergeByIdForCms(data.customProducts, [mutation.item]);
+  }
+  if (mutation.type === 'category') {
+    if (mutation.action === 'delete') data.customCategories = data.customCategories.filter(c => c.id !== mutation.id);
+    if (mutation.action === 'upsert' && mutation.item) data.customCategories = mergeByIdForCms(data.customCategories, [mutation.item]);
+  }
+  if (mutation.type === 'blog') {
+    if (mutation.action === 'delete') data.customBlog = data.customBlog.filter(p => p.id !== mutation.id);
+    if (mutation.action === 'upsert' && mutation.item) data.customBlog = mergeByIdForCms(data.customBlog, [mutation.item]);
+  }
+  if (mutation.type === 'homepage') {
+    data.homepageSettings = { ...data.homepageSettings, ...(mutation.item || {}) };
+  }
+  data.updatedAt = new Date().toISOString();
+  return data;
+}
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
+function base64ToUtf8(b64) {
+  const clean = String(b64 || '').replace(/\s/g, '');
+  const binary = atob(clean);
+  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function parseCmsFileContent(raw) {
+  try {
+    const start = raw.indexOf('window.TENACITY_CMS_DATA');
+    if (start === -1) return normalizeCmsData({});
+    const jsonStart = raw.indexOf('{', start);
+    const jsonEnd = raw.lastIndexOf('};') !== -1 ? raw.lastIndexOf('};') : raw.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) return normalizeCmsData({});
+    return normalizeCmsData(JSON.parse(raw.slice(jsonStart, jsonEnd + 1)));
+  } catch (err) {
+    console.warn('Could not parse remote CMS data. Using local snapshot instead.', err);
+    return normalizeCmsData({});
+  }
+}
+
+function makeCmsFileContent(dataOverride = null) {
+  const data = normalizeCmsData(dataOverride || getLocalCmsSnapshot());
+  data.updatedAt = data.updatedAt || new Date().toISOString();
+  return `// ============================================================
+// TENACITY LOCKS LTD — GitHub CMS Data
+// This file is updated by /admin/index.html through the GitHub API.
+// Do not delete it. Public pages read this file globally.
+// ============================================================
+window.TENACITY_CMS_DATA = ${JSON.stringify(data, null, 2)};
+`;
+}
+
+function syncLocalCmsData(data) {
+  window.TENACITY_CMS_DATA = normalizeCmsData(data);
+}
+
+function refreshAdminViewsAfterCmsSync() {
+  try {
+    initDashboard();
+    populateCatSelect();
+    const active = document.querySelector('.tab-content.active')?.id || '';
+    if (active === 'tab-products') renderProductsTable();
+    if (active === 'tab-categories') renderCategoriesTable();
+    if (active === 'tab-blog') renderBlogTable();
+    if (active === 'tab-homepage') loadHomepageSettings();
+  } catch (err) {
+    console.warn('Could not refresh admin views after GitHub sync:', err);
+  }
+}
+
+async function loadLatestCmsFromGithub(showAlert = false) {
+  saveGithubSettings();
+  const cfg = getGithubConfig();
+  setGhStatus('Loading latest website data from GitHub…', true);
+  const remote = await getRemoteCmsFile(cfg);
+  syncLocalCmsData(remote.data);
+  refreshAdminViewsAfterCmsSync();
+  setGhStatus(`Loaded latest website data from GitHub${remote.sha ? ' (' + remote.sha.slice(0, 7) + ')' : ''}.`, true);
+  if (showAlert) alert('Latest website CMS data has been loaded from GitHub into this admin panel. You can now edit safely from the current live data.');
+  return remote.data;
+}
+
+async function autoLoadLatestCmsFromGithub() {
+  const cfg = getGithubConfig();
+  if (!cfg.token) {
+    setGhStatus('Paste your GitHub token, save settings, then click Load Latest Website Data.', false);
+    return;
+  }
+  try { await loadLatestCmsFromGithub(false); }
+  catch (err) {
+    console.warn('Auto GitHub CMS sync failed:', err);
+    setGhStatus('Could not auto-load latest GitHub data: ' + err.message, false);
+  }
+}
+
+async function getRemoteCmsFile(cfg) {
+  try {
+    const current = await githubRequest(`contents/${CMS_FILE_PATH}?ref=${encodeURIComponent(cfg.branch)}`);
+    const raw = current.content ? base64ToUtf8(current.content) : '';
+    return { sha: current.sha, data: parseCmsFileContent(raw), exists: true };
+  } catch (err) {
+    if (/not found/i.test(err.message || '')) return { sha: null, data: normalizeCmsData({}), exists: false };
+    throw err;
+  }
+}
+
+async function saveCMSData(commitMessage, mutation = null) {
+  saveGithubSettings();
+  setGhStatus('Fetching latest GitHub data…', true);
+  const cfg = getGithubConfig();
+  const localSnapshot = getLocalCmsSnapshot();
+  let lastErr = null;
+
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      const current = await getRemoteCmsFile(cfg);
+      const merged = mutation
+        ? applyCmsMutation(current.data, mutation)
+        : mergeCmsSnapshots(current.data, localSnapshot);
+      const content = makeCmsFileContent(merged);
+      const body = {
+        message: commitMessage || 'Update website CMS data',
+        content: utf8ToBase64(content),
+        branch: cfg.branch
+      };
+      if (current.sha) body.sha = current.sha;
+      setGhStatus(`Publishing to GitHub… ${attempt > 1 ? 'retry ' + attempt : ''}`, true);
+      await githubRequest(`contents/${CMS_FILE_PATH}`, {
+        method: 'PUT',
+        body: JSON.stringify(body)
+      });
+      syncLocalCmsData(merged);
+      setGhStatus('Saved to GitHub. GitHub Pages may take 1–3 minutes to update globally.', true);
+      return merged;
+    } catch (err) {
+      lastErr = err;
+      const msg = String(err.message || '');
+      const isConflict = /sha|does not match|409|conflict/i.test(msg);
+      if (!isConflict || attempt === 5) break;
+      setGhStatus('GitHub file changed while saving. Reloading latest version and retrying…', false);
+      await new Promise(resolve => setTimeout(resolve, 450 * attempt));
+    }
+  }
+  throw lastErr || new Error('Could not publish CMS data to GitHub.');
 }
 
 async function testGithubConnection() {
   try {
     saveGithubSettings();
-    const cfg = getGithubConfig();
-    await githubRequest(`contents/${CMS_FILE_PATH}?ref=${encodeURIComponent(cfg.branch)}`);
-    setGhStatus('Connection OK. CMS data file found.', true);
+    await loadLatestCmsFromGithub(false);
+    setGhStatus('Connection OK. Latest CMS data loaded from GitHub.', true);
   } catch (err) {
     setGhStatus(err.message, false);
     alert(err.message);
@@ -578,6 +738,7 @@ function doLogin() {
     document.getElementById('adminPanel').classList.remove('hidden');
     initDashboard();
     loadGithubSettings();
+    autoLoadLatestCmsFromGithub();
   } else {
     const err = document.getElementById('loginError');
     err.textContent = 'Incorrect password. Please try again.';
@@ -1020,6 +1181,25 @@ function showProductForm(id) {
 
 function hideProductForm() { document.getElementById('productForm').classList.add('hidden'); }
 
+function slugifyId(value, fallback = 'item') {
+  return String(value || fallback).toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || fallback;
+}
+
+function makeUniqueIdFromValue(value, existingItems = [], prefix = 'prod') {
+  const ids = new Set((existingItems || []).map(item => item.id).filter(Boolean));
+  let base = slugifyId(value, prefix);
+  if (!base.startsWith(prefix + '-')) base = `${prefix}-${base}`;
+  let id = base;
+  let count = 2;
+  while (ids.has(id)) {
+    id = `${base}-${count}`;
+    count += 1;
+  }
+  return id;
+}
+
 async function saveProduct() {
   const editId = document.getElementById('pfEditId').value;
   const selectedImage = document.getElementById('pfImageUpload')?.files?.[0];
@@ -1027,10 +1207,13 @@ async function saveProduct() {
     try { await uploadProductImageNow(); }
     catch (err) { return; }
   }
+  const productName = document.getElementById('pfName').value.trim();
+  const skuInput = document.getElementById('pfSku').value.trim();
+  const generatedId = editId || makeUniqueIdFromValue(skuInput || productName || Date.now(), getAllProducts(), 'prod');
   const product = {
-    id: editId || 'prod-' + Date.now(),
-    name: document.getElementById('pfName').value,
-    sku: document.getElementById('pfSku').value,
+    id: generatedId,
+    name: productName,
+    sku: skuInput || generatedId.toUpperCase(),
     category: document.getElementById('pfCategory').value,
     image: document.getElementById('pfImage').value,
     price: parseInt(document.getElementById('pfPrice').value),
@@ -1044,7 +1227,7 @@ async function saveProduct() {
   const idx = custom.findIndex(p => p.id === product.id);
   if (idx >= 0) custom[idx] = product; else custom.unshift(product);
   cmsData().customProducts = custom;
-  try { await saveCMSData('Update product: ' + product.name); } catch (err) { alert('Product saved locally in this browser but failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Update product: ' + product.name, { type: 'product', action: 'upsert', item: product }); } catch (err) { alert('Product saved locally in this browser but failed to publish to GitHub: ' + err.message); }
   hideProductForm();
   renderProductsTable();
 }
@@ -1052,7 +1235,7 @@ async function saveProduct() {
 async function deleteProduct(id) {
   if (!confirm('Delete this product override/custom product? Built-in products can only be hidden by editing them, not permanently removed from data.js.')) return;
   cmsData().customProducts = (cmsData().customProducts || []).filter(p => p.id !== id);
-  try { await saveCMSData('Delete product: ' + id); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Delete product: ' + id, { type: 'product', action: 'delete', id }); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
   renderProductsTable();
 }
 
@@ -1090,7 +1273,7 @@ async function saveCategory() {
   const idx = custom.findIndex(c => c.id === editId || c.id === id);
   if (idx >= 0) custom[idx] = { id, name }; else custom.push({ id, name });
   cmsData().customCategories = custom;
-  try { await saveCMSData('Update category: ' + name); } catch (err) { alert('Category saved locally in this browser but failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Update category: ' + name, { type: 'category', action: 'upsert', item: { id, name } }); } catch (err) { alert('Category saved locally in this browser but failed to publish to GitHub: ' + err.message); }
   resetCatForm(); renderCategoriesTable();
   if (document.getElementById('pfCategory')) populateCatSelect();
   if (document.getElementById('productsTable')) renderProductsTable();
@@ -1108,7 +1291,7 @@ function editCategory(id) {
 async function deleteCategory(id) {
   if (!confirm('Delete this category override/custom category?')) return;
   cmsData().customCategories = (cmsData().customCategories || []).filter(c => c.id !== id);
-  try { await saveCMSData('Delete category: ' + id); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Delete category: ' + id, { type: 'category', action: 'delete', id }); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
   renderCategoriesTable();
   if (document.getElementById('pfCategory')) populateCatSelect();
   if (document.getElementById('productsTable')) renderProductsTable();
@@ -1201,14 +1384,14 @@ async function saveBlogPost() {
   const idx = custom.findIndex(p => p.id === post.id);
   if (idx >= 0) custom[idx] = post; else custom.unshift(post);
   cmsData().customBlog = custom;
-  try { await saveCMSData('Update blog post: ' + post.title); } catch (err) { alert('Blog post saved locally in this browser but failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Update blog post: ' + post.title, { type: 'blog', action: 'upsert', item: post }); } catch (err) { alert('Blog post saved locally in this browser but failed to publish to GitHub: ' + err.message); }
   hideBlogForm(); renderBlogTable();
 }
 
 async function deleteBlogPost(id) {
   if (!confirm('Delete this blog post override/custom post?')) return;
   cmsData().customBlog = (cmsData().customBlog || []).filter(p => p.id !== id);
-  try { await saveCMSData('Delete blog post: ' + id); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Delete blog post: ' + id, { type: 'blog', action: 'delete', id }); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
   renderBlogTable();
 }
 
@@ -1232,14 +1415,14 @@ async function saveHomepage() {
     email: document.getElementById('hpEmail').value,
     phone: document.getElementById('hpPhone').value,
   };
-  try { await saveCMSData('Update homepage settings'); } catch (err) { alert('Homepage settings saved locally in this browser but failed to publish to GitHub: ' + err.message); }
+  try { await saveCMSData('Update homepage settings', { type: 'homepage', action: 'upsert', item: cmsData().homepageSettings }); } catch (err) { alert('Homepage settings saved locally in this browser but failed to publish to GitHub: ' + err.message); }
   const saved = document.getElementById('hpSaved');
   saved.classList.remove('hidden');
   setTimeout(() => saved.classList.add('hidden'), 3000);
 }
 
 // Init
-if (Admin.isLoggedIn()) { initDashboard(); loadGithubSettings(); }
+if (Admin.isLoggedIn()) { initDashboard(); loadGithubSettings(); autoLoadLatestCmsFromGithub(); }
 </script>
 </body>
 </html>
