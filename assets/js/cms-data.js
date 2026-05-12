@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "tm53-mcf-keyless",
+      "name": "TM53 MAB Keyless Bathroom Lock",
+      "sku": "TM53-MCF-KL",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/tm53-ss-keyless.jpg",
+      "price": 1500,
+      "originalPrice": 2000,
+      "description": "TM53 MCF (Matt Coffee) keyless bathroom lock. Rich coffee/gold finish.",
+      "features": [
+        "No Key Required",
+        "Privacy lock",
+        "MCF finish",
+        "CE Certified",
+        "Easy fit"
+      ],
+      "onOffer": true
+    },
+    {
       "id": "tb68-mac",
       "name": "Tenacity Main Door Entry Level Lock TB68 MAC",
       "sku": "TB68-MAC",
@@ -39,5 +57,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T13:34:10.178Z"
+  "updatedAt": "2026-05-12T13:46:56.167Z"
 };
