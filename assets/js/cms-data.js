@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "c38-black-keyless",
+      "name": "TM53 MCF Black Keyless Bathroom Lock",
+      "sku": "C38-BLK-KL",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/c38-black-keyless.jpg",
+      "price": 3000,
+      "originalPrice": null,
+      "description": "Premium C38 Black keyless bathroom lock. High-grade construction with smooth operation.",
+      "features": [
+        "No Key Required",
+        "C38 Series",
+        "Matte black",
+        "CE Certified",
+        "5-year guarantee"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "tm53-mcf-keyless",
       "name": "TM53 MAB Keyless Bathroom Lock",
       "sku": "TM53-MCF-KL",
@@ -57,5 +75,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T13:46:56.167Z"
+  "updatedAt": "2026-05-12T13:49:04.265Z"
 };
