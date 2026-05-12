@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-h50-sn-keys",
+      "name": "Tenacity T108 Black— Keys Both Sides",
+      "sku": "PQ-H50-SN-K",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-h50-sn-keys-new.jpg",
+      "price": 3000,
+      "originalPrice": null,
+      "description": "Tenacity Premium Quality H50 SN internal door lock with keys on both sides. Strong premium lock with a clean satin nickel style finish.",
+      "features": [
+        "Keys Both Sides",
+        "H50 Series",
+        "SN Finish",
+        "Premium Quality",
+        "Internal Door Lock"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-c38-ss-keys",
       "name": "Tenacity Premium Quality H50 SN Keyless Bathroom Locks ",
       "sku": "PQ-C38-SS-K",
@@ -182,5 +200,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T14:02:23.376Z"
+  "updatedAt": "2026-05-12T14:05:29.538Z"
 };
