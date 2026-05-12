@@ -237,5 +237,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:23:48.336Z"
+  "updatedAt": "2026-05-12T15:27:57.920Z"
 };
