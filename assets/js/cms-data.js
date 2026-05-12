@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-c38-ss-keys",
+      "name": "Tenacity Premium Quality H50 SN Keyless Bathroom Locks ",
+      "sku": "PQ-C38-SS-K",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-c38-ss-keys-new.jpg",
+      "price": 2500,
+      "originalPrice": null,
+      "description": "Tenacity Premium Quality C38 Stainless Steel internal door lock with keys on both sides. Reliable premium lock for internal doors.",
+      "features": [
+        "Keys Both Sides",
+        "C38 Series",
+        "Stainless Steel",
+        "Premium Quality",
+        "Internal Door Lock"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "c38-ss-keyless",
       "name": "TM53 MSN Stainless Steel Keyless Bathroom Lock",
       "sku": "C38-SS-KL",
@@ -164,5 +182,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T14:00:02.888Z"
+  "updatedAt": "2026-05-12T14:02:23.376Z"
 };
