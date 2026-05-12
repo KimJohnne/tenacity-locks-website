@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "c38-black-keys",
+      "name": "TM53 MCF — Keys Both Sides",
+      "sku": "C38-BLK-K",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/c38-black-keys.jpg",
+      "price": 2500,
+      "originalPrice": null,
+      "description": "Premium C38 Black lock with keys on both sides. Both Sides Keys for maximum security.",
+      "features": [
+        "Keys Both Sides",
+        "C38 Series",
+        "Matte black",
+        "CE Certified",
+        "5-year guarantee"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "f6-series-3",
       "name": "Tenacity F6 Series 3-PIN Lock MCF— Non-Duplicatable Keys",
       "sku": "F6-NDK-03",
@@ -129,5 +147,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T13:55:31.637Z"
+  "updatedAt": "2026-05-12T13:57:33.079Z"
 };
