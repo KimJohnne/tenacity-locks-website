@@ -1434,3 +1434,66 @@ textarea.form-control { resize: vertical; min-height: 120px; }
 .contact-whatsapp-btn:hover {
   box-shadow: 0 14px 32px rgba(37, 211, 102, 0.36);
 }
+
+/* WhatsApp button icon polish across product, cart, contact, hero, footer */
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.btn-whatsapp .btn-icon {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+  flex: 0 0 22px !important;
+}
+.product-whatsapp-btn,
+.cart-whatsapp-btn {
+  min-height: 52px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.26);
+}
+.product-whatsapp-btn:hover,
+.cart-whatsapp-btn:hover {
+  box-shadow: 0 14px 34px rgba(37, 211, 102, 0.36);
+}
+.modal .btn-whatsapp .btn-icon {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+}
+@media (max-width: 520px) {
+  .product-whatsapp-btn,
+  .cart-whatsapp-btn { min-height: 50px; font-size: 0.9rem; }
+  .btn-whatsapp .btn-icon { width: 20px !important; height: 20px !important; min-width: 20px !important; }
+}
+
+/* Checkout Nairobi destination selector */
+.conditional-field {
+  animation: fadeInUp 0.18s ease-out;
+}
+
+.field-help {
+  margin-top: 6px;
+  font-size: 0.76rem;
+  color: var(--gray);
+  line-height: 1.45;
+}
+
+#nairobiDestinationGroup {
+  border: 1px solid rgba(168, 20, 151, 0.16);
+  background: rgba(168, 20, 151, 0.035);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+#cfNairobiDestination {
+  border-color: rgba(168, 20, 151, 0.28);
+}
