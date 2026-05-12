@@ -68,16 +68,21 @@
       <div class="form-group">
         <label>Shipping Zone *</label>
         <select class="form-control" id="cfShipping" onchange="updateShipping()" required>
-          <option value="">-- Select your area --</option>
-          <option value="Nairobi CBD / Westlands — KShs 200:200">Nairobi CBD / Westlands — KShs 200</option>
-          <option value="Nairobi Suburbs (Kasarani, Embakasi, Langata etc.) — KShs 300:300">Nairobi Suburbs — KShs 300</option>
-          <option value="Kiambu / Thika — KShs 350:350">Kiambu / Thika — KShs 350</option>
+          <option value="">-- Select your delivery zone --</option>
+          <option value="NAIROBI">Nairobi — choose specific destination</option>
           <option value="Mombasa — KShs 700:700">Mombasa — KShs 700</option>
           <option value="Kisumu — KShs 650:650">Kisumu — KShs 650</option>
           <option value="Nakuru — KShs 500:500">Nakuru — KShs 500</option>
           <option value="Eldoret — KShs 600:600">Eldoret — KShs 600</option>
           <option value="Other Upcountry — KShs 400:400">Other Upcountry — KShs 400</option>
         </select>
+      </div>
+      <div class="form-group conditional-field" id="nairobiDestinationGroup" style="display:none;">
+        <label>Nairobi Destination / Suburb *</label>
+        <select class="form-control" id="cfNairobiDestination" onchange="updateShipping()">
+          <option value="">-- Select exact Nairobi destination --</option>
+        </select>
+        <p class="field-help">Rates are based on the NEST Delivery urgent delivery price list.</p>
       </div>
       <div class="form-group">
         <label>M-PESA Confirmation Message *</label>
@@ -90,13 +95,244 @@
       <div style="background:var(--off-white);border-radius:var(--radius-sm);padding:16px;margin-bottom:24px;" id="totalBlock"></div>
 
       <button type="submit" class="btn btn-whatsapp btn-block btn-lg">
-        <img src="assets/images/icons/whatsapp.svg" class="btn-icon" alt=""> Send Order on WhatsApp
+        <img src="assets/images/icons/whatsapp-white.svg" class="btn-icon" alt="WhatsApp"> Send Order on WhatsApp
       </button>
     </form>
   </div>
 </div>
 
 <script>
+const NAIROBI_DELIVERY_RATES = [
+  { route: 'Waiyaki Way', area: 'Chiromo', rate: 300 },
+  { route: 'Waiyaki Way', area: 'Riverside', rate: 300 },
+  { route: 'Waiyaki Way', area: 'Westlands', rate: 300 },
+  { route: 'Waiyaki Way', area: 'Raphta Road', rate: 300 },
+  { route: 'Waiyaki Way', area: 'The Mall', rate: 300 },
+  { route: 'Waiyaki Way', area: 'Muguga Green', rate: 600 },
+  { route: 'Waiyaki Way', area: 'Brookside Drive', rate: 350 },
+  { route: 'Waiyaki Way', area: 'ABC', rate: 300 },
+  { route: 'Waiyaki Way', area: 'Kangemi', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Loresho', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Kitisuru', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Spring Valley', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Peponi Road', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Thigiri Ridge', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Mountain View', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Lower Kabete', rate: 500 },
+  { route: 'Waiyaki Way', area: 'UON Kabete', rate: 500 },
+  { route: 'Waiyaki Way', area: 'Uthiru', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Kinoo', rate: 600 },
+  { route: 'Waiyaki Way', area: 'Muthiga', rate: 600 },
+  { route: 'Waiyaki Way', area: 'Ndumbuini', rate: 400 },
+  { route: 'Waiyaki Way', area: 'Wangige / Nyari', rate: 600 },
+  { route: 'Waiyaki Way', area: 'Kikuyu', rate: 700 },
+  { route: 'Waiyaki Way', area: 'Zambezi', rate: 900 },
+  { route: 'Waiyaki Way', area: 'Rironi', rate: 1000 },
+  { route: 'Waiyaki Way', area: 'Limuru', rate: 1500 },
+  { route: 'Thika Road', area: 'Ngara', rate: 250 },
+  { route: 'Thika Road', area: 'Muthaiga', rate: 400 },
+  { route: 'Thika Road', area: 'Muthaiga North', rate: 450 },
+  { route: 'Thika Road', area: 'Pangani', rate: 250 },
+  { route: 'Thika Road', area: 'KCA / NYS / Survey', rate: 400 },
+  { route: 'Thika Road', area: 'All Soaps', rate: 400 },
+  { route: 'Thika Road', area: 'Roasters / Garden City / Ngumba', rate: 400 },
+  { route: 'Thika Road', area: 'USIU / Garden City / Thome', rate: 400 },
+  { route: 'Thika Road', area: 'TRM / Lumumba Drive', rate: 450 },
+  { route: 'Thika Road', area: 'Kasarani ICIPE / Equity', rate: 450 },
+  { route: 'Thika Road', area: 'Kasarani Seasons / Hunters', rate: 450 },
+  { route: 'Thika Road', area: 'Mirema / Zimmerman', rate: 450 },
+  { route: 'Thika Road', area: 'Mwiki', rate: 600 },
+  { route: 'Thika Road', area: 'Githurai 45', rate: 500 },
+  { route: 'Thika Road', area: 'Kahawa Wendani', rate: 500 },
+  { route: 'Thika Road', area: 'Jacaranda', rate: 500 },
+  { route: 'Thika Road', area: 'Kahawa Sukari', rate: 500 },
+  { route: 'Thika Road', area: 'Farmers Choice', rate: 600 },
+  { route: 'Thika Road', area: 'KU Referral', rate: 600 },
+  { route: 'Thika Road', area: 'Maji Mazuri', rate: 600 },
+  { route: 'Thika Road', area: 'Ruiru Bypass', rate: 700 },
+  { route: 'Thika Road', area: 'Tatu City', rate: 700 },
+  { route: 'Thika Road', area: 'Ruiru Town', rate: 800 },
+  { route: 'Thika Road', area: 'Ruiru Kamakis', rate: 800 },
+  { route: 'Thika Road', area: 'Kimbo', rate: 850 },
+  { route: 'Thika Road', area: 'Kenyatta Road Junction', rate: 900 },
+  { route: 'Thika Road', area: 'Kenyatta Road Inside', rate: 900 },
+  { route: 'Thika Road', area: 'Juja Town / JKUAT', rate: 900 },
+  { route: 'Thika Road', area: 'Juja Farm', rate: 1000 },
+  { route: 'Thika Road', area: 'Witeithie', rate: 1500 },
+  { route: 'Thika Road', area: 'Thika Town', rate: 1500 },
+  { route: 'Thika Road', area: 'Thika Greens / Makongeni', rate: 1500 },
+  { route: 'Mombasa Road', area: 'Bunyala', rate: 250 },
+  { route: 'Mombasa Road', area: 'Nyayo Stadium', rate: 250 },
+  { route: 'Mombasa Road', area: 'Baricho / Dunga Road', rate: 250 },
+  { route: 'Mombasa Road', area: 'South B / C / Bellevue', rate: 300 },
+  { route: 'Mombasa Road', area: 'Capital Centre', rate: 300 },
+  { route: 'Mombasa Road', area: 'Likoni Road', rate: 300 },
+  { route: 'Mombasa Road', area: 'Airtel / Nextgen / Vision Plaza', rate: 300 },
+  { route: 'Mombasa Road', area: 'Sameer / Standard / GM', rate: 350 },
+  { route: 'Mombasa Road', area: 'Imara Daima / City Cabanas', rate: 350 },
+  { route: 'Mombasa Road', area: 'JKIA Checkpoint', rate: 400 },
+  { route: 'Mombasa Road', area: 'JKIA Cargo / Passenger', rate: 400 },
+  { route: 'Mombasa Road', area: 'Gateway Mall / SGR Terminus', rate: 500 },
+  { route: 'Mombasa Road', area: 'Utawala Quickmart', rate: 500 },
+  { route: 'Mombasa Road', area: 'Lexo', rate: 500 },
+  { route: 'Mombasa Road', area: 'Utawala Githunguri Road', rate: 500 },
+  { route: 'Mombasa Road', area: 'Syokimau / Katani', rate: 600 },
+  { route: 'Mombasa Road', area: 'Greatwall Apartments Mlolongo', rate: 500 },
+  { route: 'Mombasa Road', area: 'Sabaki', rate: 600 },
+  { route: 'Mombasa Road', area: 'Greatwall Gardens', rate: 700 },
+  { route: 'Mombasa Road', area: 'Athi River Devki', rate: 900 },
+  { route: 'Mombasa Road', area: 'Athi River Greenpark', rate: 1000 },
+  { route: 'Mombasa Road', area: 'EPZ Kitengela', rate: 1000 },
+  { route: 'Mombasa Road', area: 'Kitengela GMC / KAG / Milimani', rate: 1000 },
+  { route: 'Ngong Road', area: 'Community', rate: 200 },
+  { route: 'Ngong Road', area: 'Uhuru Park / Serena', rate: 200 },
+  { route: 'Ngong Road', area: 'Community / Integrity', rate: 200 },
+  { route: 'Ngong Road', area: 'KNH / Upperhill / Nairobi Hosp', rate: 250 },
+  { route: 'Ngong Road', area: 'Statehouse / DOD', rate: 250 },
+  { route: 'Ngong Road', area: 'Lenana / Dennis Pritt', rate: 300 },
+  { route: 'Ngong Road', area: 'Yaya Centre / Coptic', rate: 300 },
+  { route: 'Ngong Road', area: 'Kileleshwa / Methodist', rate: 300 },
+  { route: 'Ngong Road', area: 'Valley Arcade / Adams Arcade', rate: 300 },
+  { route: 'Ngong Road', area: 'Hatheru Rd / Amboseli', rate: 350 },
+  { route: 'Ngong Road', area: 'Mzima Springs', rate: 350 },
+  { route: 'Ngong Road', area: 'Convent Rd / Chalbi Drive', rate: 350 },
+  { route: 'Ngong Road', area: 'KMTC', rate: 300 },
+  { route: 'Ngong Road', area: 'Mbagathi', rate: 300 },
+  { route: 'Ngong Road', area: 'City Mortuary', rate: 250 },
+  { route: 'Ngong Road', area: 'Prestige', rate: 300 },
+  { route: 'Ngong Road', area: 'Kibera', rate: 300 },
+  { route: 'Ngong Road', area: 'Woodley', rate: 350 },
+  { route: 'Ngong Road', area: 'Riara', rate: 350 },
+  { route: 'Ngong Road', area: 'Junction Mall', rate: 350 },
+  { route: 'Ngong Road', area: 'Jamhuri Showground', rate: 350 },
+  { route: 'Ngong Road', area: 'Lavington', rate: 350 },
+  { route: 'Ngong Road', area: 'Racecourse', rate: 350 },
+  { route: 'Ngong Road', area: 'Lenana School', rate: 400 },
+  { route: 'Ngong Road', area: 'Miotoni / Nandi Road', rate: 500 },
+  { route: 'Ngong Road', area: 'Karen Road Kwa DP', rate: 500 },
+  { route: 'Ngong Road', area: 'The Hub / Karen', rate: 500 },
+  { route: 'Ngong Road', area: 'Shade Hotel', rate: 500 },
+  { route: 'Ngong Road', area: 'Embulbul / Kererapon', rate: 600 },
+  { route: 'Ngong Road', area: 'Veterinary', rate: 600 },
+  { route: 'Ngong Road', area: 'Ngong Town', rate: 900 },
+  { route: 'Ngong Road', area: 'Matasia Ngong', rate: 1000 },
+  { route: 'Limuru Road', area: '1st / 2nd Parklands', rate: 250 },
+  { route: 'Limuru Road', area: '3rd - 5th Parklands', rate: 250 },
+  { route: 'Limuru Road', area: 'Muthaiga / Karura', rate: 400 },
+  { route: 'Limuru Road', area: 'Gigiri / Village Market', rate: 400 },
+  { route: 'Limuru Road', area: 'Two Rivers', rate: 450 },
+  { route: 'Limuru Road', area: 'Runda Riuaka Rd', rate: 450 },
+  { route: 'Limuru Road', area: 'Runda Water / Eliud Mathu Rd', rate: 450 },
+  { route: 'Limuru Road', area: 'Ruaka Town / Mimosa', rate: 550 },
+  { route: 'Limuru Road', area: 'Ndenderu', rate: 650 },
+  { route: 'Limuru Road', area: 'Muchatha', rate: 650 },
+  { route: 'Limuru Road', area: 'Banana', rate: 650 },
+  { route: 'Langata Road', area: 'Nyayo / Rounda', rate: 250 },
+  { route: 'Langata Road', area: 'Masaba Road', rate: 250 },
+  { route: 'Langata Road', area: 'Nairobi West', rate: 300 },
+  { route: 'Langata Road', area: 'Highrise / T-Mall / Mbagathi', rate: 300 },
+  { route: 'Langata Road', area: 'Wilson', rate: 400 },
+  { route: 'Langata Road', area: 'Carnivore / Uhuru Gardens', rate: 350 },
+  { route: 'Langata Road', area: 'Deliverance / Naivas', rate: 350 },
+  { route: 'Langata Road', area: 'KWS', rate: 400 },
+  { route: 'Langata Road', area: 'Cemetery / St. Marys / Prison', rate: 400 },
+  { route: 'Langata Road', area: 'Bomas / Galleria', rate: 500 },
+  { route: 'Langata Road', area: 'Langata Hindu Temple', rate: 500 },
+  { route: 'Langata Road', area: 'Karen County Club', rate: 500 },
+  { route: 'Langata Road', area: 'Karen Hosp / Ndege Rd', rate: 500 },
+  { route: 'Langata Road', area: 'Bogani Rd / Giraffe Centre', rate: 500 },
+  { route: 'Langata Road', area: 'Kenya Sch of Law / Hardy', rate: 500 },
+  { route: 'Langata Road', area: 'Banda Sch / Catholic Univ', rate: 500 },
+  { route: 'Langata Road', area: 'Rongai Masai Lodge / MMU', rate: 600 },
+  { route: 'Langata Road', area: 'Rongai Laiser Hill', rate: 600 },
+  { route: 'Langata Road', area: 'Rongai Nazarene', rate: 800 },
+  { route: 'Langata Road', area: 'Kiserian', rate: 1200 },
+  { route: 'Industrial Area', area: 'Commercial Street / Dunga Rd', rate: 250 },
+  { route: 'Industrial Area', area: 'DT Dobie / Lusaka Rd / Prison', rate: 250 },
+  { route: 'Industrial Area', area: 'Mater Hosp / South B Shopping Centre', rate: 300 },
+  { route: 'Industrial Area', area: 'BAT / Hse of Manji', rate: 350 },
+  { route: 'Industrial Area', area: 'Kampala Rd / Homabay', rate: 350 },
+  { route: 'Industrial Area', area: 'Lungalunga Square', rate: 400 },
+  { route: 'Industrial Area', area: 'Nanyuki Rd / Kenya Pipeline Depot', rate: 400 },
+  { route: 'Industrial Area', area: 'Road C / Likoni Rd', rate: 400 },
+  { route: 'Industrial Area', area: 'Road A / Kwa Reuben Kijiji', rate: 400 },
+  { route: 'Kiambu Road', area: 'DCI HQS', rate: 400 },
+  { route: 'Kiambu Road', area: 'Muthaiga North', rate: 450 },
+  { route: 'Kiambu Road', area: 'Ridgeways', rate: 400 },
+  { route: 'Kiambu Road', area: 'Fourways Junction', rate: 450 },
+  { route: 'Kiambu Road', area: 'Evergreen', rate: 450 },
+  { route: 'Kiambu Road', area: 'Windsor', rate: 450 },
+  { route: 'Kiambu Road', area: 'Thindigua', rate: 450 },
+  { route: 'Kiambu Road', area: 'Paradise Lost', rate: 450 },
+  { route: 'Kiambu Road', area: 'Eden Ville / Fivestar', rate: 450 },
+  { route: 'Kiambu Road', area: 'Kiambu Institute', rate: 650 },
+  { route: 'Kiambu Road', area: 'Kiambu / Kirigiti', rate: 650 },
+  { route: 'Kiambu Road', area: 'Ndumberi', rate: 700 },
+  { route: 'Kiambu Road', area: 'Githunguri', rate: 800 },
+  { route: 'Kiambu Road', area: 'Ngorongoro Tea Factory', rate: 1000 },
+  { route: 'Jogoo Road', area: 'Kamukunji / Country Bus', rate: 200 },
+  { route: 'Jogoo Road', area: 'Gikomba', rate: 200 },
+  { route: 'Jogoo Road', area: 'City Stadium / Burma Market', rate: 250 },
+  { route: 'Jogoo Road', area: 'Kaloleni / Shauri Moyo / Makongeni', rate: 300 },
+  { route: 'Jogoo Road', area: 'Makadara / Hamza / Uhuru Mkt', rate: 300 },
+  { route: 'Jogoo Road', area: 'Buruburu / Tena', rate: 350 },
+  { route: 'Jogoo Road', area: 'Donholm', rate: 400 },
+  { route: 'Jogoo Road', area: 'Umoja 1 & 2', rate: 400 },
+  { route: 'Jogoo Road', area: 'Umoja 3', rate: 450 },
+  { route: 'Jogoo Road', area: 'Komarock', rate: 500 },
+  { route: 'Jogoo Road', area: 'Kayole Kwa Chief', rate: 500 },
+  { route: 'Naivasha Road', area: 'Wanyee Road', rate: 400 },
+  { route: 'Naivasha Road', area: 'Kawangware 46', rate: 400 },
+  { route: 'Naivasha Road', area: 'Equity / Havard', rate: 400 },
+  { route: 'Naivasha Road', area: 'Riruta', rate: 400 },
+  { route: 'Naivasha Road', area: 'Satellite', rate: 400 },
+  { route: 'Naivasha Road', area: 'ILRI', rate: 400 },
+  { route: 'Naivasha Road', area: 'Waithaka', rate: 500 },
+  { route: 'Naivasha Road', area: 'Dagoreti Town', rate: 500 },
+  { route: 'Naivasha Road', area: 'Kinyanjui Technical', rate: 400 },
+  { route: 'Naivasha Road', area: 'Ndwaru', rate: 500 },
+  { route: 'Outer Ring Road', area: 'Fedha', rate: 450 },
+  { route: 'Outer Ring Road', area: 'Nyayo Gate B', rate: 450 },
+  { route: 'Outer Ring Road', area: 'Pipeline', rate: 400 },
+  { route: 'Outer Ring Road', area: 'Taj Mall', rate: 450 },
+  { route: 'Outer Ring Road', area: 'Tassia', rate: 450 },
+  { route: 'Kangundo Road', area: 'Mama Lucy', rate: 500 },
+  { route: 'Kangundo Road', area: 'Saika', rate: 500 },
+  { route: 'Kangundo Road', area: 'Kayole Junction', rate: 500 },
+  { route: 'Kangundo Road', area: 'Nasra Gardens', rate: 500 },
+  { route: 'Kangundo Road', area: 'Njiru', rate: 800 },
+  { route: 'Kangundo Road', area: 'Ruai', rate: 1000 },
+  { route: 'Kangundo Road', area: 'Kamulu', rate: 1000 },
+  { route: 'Kangundo Road', area: 'Joska', rate: 1000 },
+  { route: 'Kangundo Road', area: 'Malaa', rate: 1800 },
+  { route: 'Juja Road', area: 'Pangani', rate: 250 },
+  { route: 'Juja Road', area: 'Mlango', rate: 300 },
+  { route: 'Juja Road', area: 'Eastleigh', rate: 300 },
+  { route: 'Juja Road', area: 'Mathare / Airbase', rate: 350 },
+  { route: 'Juja Road', area: 'Huruma Kwa Chief', rate: 350 },
+  { route: 'Juja Road', area: 'Huruma / Rounda', rate: 350 },
+  { route: 'Juja Road', area: 'Kariobangi', rate: 400 },
+  { route: 'Juja Road', area: 'Dandora Phase 4 / Dumpsite', rate: 450 }
+];
+
+function populateNairobiDestinations() {
+  const select = document.getElementById('cfNairobiDestination');
+  if (!select || select.dataset.loaded === 'true') return;
+  const routes = [...new Set(NAIROBI_DELIVERY_RATES.map(item => item.route))];
+  routes.forEach(route => {
+    const group = document.createElement('optgroup');
+    group.label = route;
+    NAIROBI_DELIVERY_RATES.filter(item => item.route === route).forEach(item => {
+      const option = document.createElement('option');
+      option.value = `${item.area} (${item.route})|${item.rate}`;
+      option.textContent = `${item.area} — KShs ${item.rate}`;
+      group.appendChild(option);
+    });
+    select.appendChild(group);
+  });
+  select.dataset.loaded = 'true';
+}
+
 let shippingCost = 0;
 let shippingLabel = '';
 
@@ -143,8 +379,9 @@ function renderCart() {
         <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">${fmt(subtotal)}</span></div>
         <div class="summary-row"><span>Shipping</span><span id="summaryShipping">Calculated at checkout</span></div>
         <div class="summary-row total"><span>Total</span><span id="summaryTotal">${fmt(subtotal)}</span></div>
-        <button class="btn btn-whatsapp btn-block btn-lg mt-4" onclick="openCheckout()">
-          💬 Order on WhatsApp
+        <button class="btn btn-whatsapp btn-block btn-lg mt-4 cart-whatsapp-btn" onclick="openCheckout()">
+          <img src="assets/images/icons/whatsapp-white.svg" class="btn-icon" alt="WhatsApp">
+          <span>Order on WhatsApp</span>
         </button>
         <p style="font-size:0.75rem;color:var(--gray);text-align:center;margin-top:12px;">You'll complete your order via WhatsApp after confirming M-PESA payment.</p>
       </div>
@@ -197,6 +434,7 @@ function clearCart() {
 }
 
 function openCheckout() {
+  populateNairobiDestinations();
   updateOrderSummary();
   document.getElementById('checkoutModal').classList.add('open');
 }
@@ -206,13 +444,39 @@ function closeModal() {
 }
 
 function updateShipping() {
-  const val = document.getElementById('cfShipping').value;
-  if (!val) { shippingCost = 0; shippingLabel = ''; }
-  else {
+  const shippingSelect = document.getElementById('cfShipping');
+  const destinationGroup = document.getElementById('nairobiDestinationGroup');
+  const destinationSelect = document.getElementById('cfNairobiDestination');
+  const val = shippingSelect ? shippingSelect.value : '';
+
+  if (val === 'NAIROBI') {
+    populateNairobiDestinations();
+    destinationGroup.style.display = 'block';
+    destinationSelect.required = true;
+
+    if (!destinationSelect.value) {
+      shippingCost = 0;
+      shippingLabel = '';
+    } else {
+      const [destination, rate] = destinationSelect.value.split('|');
+      shippingLabel = `Nairobi — ${destination}`;
+      shippingCost = parseInt(rate, 10) || 0;
+    }
+  } else if (!val) {
+    destinationGroup.style.display = 'none';
+    destinationSelect.required = false;
+    destinationSelect.value = '';
+    shippingCost = 0;
+    shippingLabel = '';
+  } else {
+    destinationGroup.style.display = 'none';
+    destinationSelect.required = false;
+    destinationSelect.value = '';
     const parts = val.split(':');
     shippingLabel = parts[0];
-    shippingCost = parseInt(parts[1]);
+    shippingCost = parseInt(parts[1], 10) || 0;
   }
+
   updateTotalBlock();
   // Update summary
   const ss = document.getElementById('summaryShipping');
@@ -250,6 +514,14 @@ function submitWhatsApp(e) {
   const address = document.getElementById('cfAddress').value;
   const location = document.getElementById('cfLocation').value;
   const mpesa = document.getElementById('cfMpesa').value;
+  const selectedZone = document.getElementById('cfShipping').value;
+  const selectedNairobiDestination = document.getElementById('cfNairobiDestination').value;
+
+  if (selectedZone === 'NAIROBI' && !selectedNairobiDestination) {
+    alert('Please select your exact Nairobi destination so the correct urgent delivery rate can be applied.');
+    document.getElementById('cfNairobiDestination').focus();
+    return;
+  }
 
   const items = Cart.get();
   const products = items.map(i => ({ ...i, product: getAllProducts().find(p => p.id === i.id) })).filter(i => i.product);
