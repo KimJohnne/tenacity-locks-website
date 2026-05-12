@@ -6,6 +6,40 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "tenacity-90-nbgp",
+      "name": "Tenacity 90 ABB 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-90-ABB",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-90-nbgp.jpg",
+      "price": 9000,
+      "originalPrice": null,
+      "description": "Tenacity 90 ABB 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false
+    },
+    {
+      "id": "tenacity-90-acc",
+      "name": "Tenacity 90 NBGP 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-90-NBGP",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-90-acc.jpg",
+      "price": 9000,
+      "originalPrice": null,
+      "description": "Tenacity 90 NBGP 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "tenacity-90-abb",
       "name": "Tenacity 90 ACC 4-PIN Lock with Non-duplicatable Keys",
       "sku": "TENACITY-90-ACC",
@@ -203,5 +237,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:20:08.367Z"
+  "updatedAt": "2026-05-12T15:23:48.336Z"
 };
