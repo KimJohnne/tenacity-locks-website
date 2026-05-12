@@ -76,13 +76,13 @@ window.TENACITY_CMS_DATA = {
     },
     {
       "id": "pq-h50-sn-keys",
-      "name": "Tenacity T108 Black — Keys Both Sides",
-      "sku": "PQ-H50-SN-K",
+      "name": "Tenacity T108 Black",
+      "sku": "PQ-T108-BLK",
       "category": "premium-quality",
       "image": "assets/images/products/pq-h50-sn-keys-new.jpg",
       "price": 4500,
       "originalPrice": null,
-      "description": "Tenacity T108 Black internal door lock with keys on both sides. Strong premium lock with a black style finish.",
+      "description": "Tenacity T108 Black internal door lock.. Strong premium lock with a black style finish.",
       "features": [
         "Keys Both Sides",
         "T108 Series",
@@ -168,5 +168,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:04:29.795Z"
+  "updatedAt": "2026-05-12T15:09:46.262Z"
 };
