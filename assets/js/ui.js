@@ -149,6 +149,7 @@ function renderFooter() {
                 <li><a href="${ROOT}shop.html?cat=entry-level">TB68 Series MAIN DOOR ENTRY LOCKS</a></li>
                 <li><a href="${ROOT}shop.html?cat=single-pin-ndk">THE TM53 SERIES INTERNAL DOOR LOCKS ON OFFER!!!</a></li>
                 <li><a href="${ROOT}shop.html?cat=premium-quality">Premium Quality</a></li>
+                <li><a href="${ROOT}shop.html?cat=four-pin-non-duplicatable">TENACITY 4-PIN locks</a></li>
                 <li><a href="${ROOT}shop.html?cat=deadlocks">Deadlocks</a></li>
               </ul>
             </div>
