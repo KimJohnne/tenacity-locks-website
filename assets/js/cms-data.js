@@ -351,10 +351,27 @@ window.TENACITY_CMS_DATA = {
         "Non-duplicatable keys"
       ],
       "onOffer": false
+    },
+    {
+      "id": "tenacity-62-sncp",
+      "name": "Tenacity 51 NBGP 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-51-NBGP",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-62-sncp.jpg",
+      "price": 8500,
+      "originalPrice": null,
+      "description": "Tenacity 51 NBGP 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false
     }
   ],
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T16:11:14.852Z"
+  "updatedAt": "2026-05-12T16:13:41.550Z"
 };
