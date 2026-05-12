@@ -6,6 +6,23 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "tenacity-90-abb",
+      "name": "Tenacity 90 ACC 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-90-ACC",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-90-abb.jpg",
+      "price": 9000,
+      "originalPrice": null,
+      "description": "Tenacity 90 ACC 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "f6-series-1",
       "name": "Tenacity F6 Series 3-PIN Lock Black — Non-Duplicatable Keys",
       "sku": "F6-BLACK",
@@ -186,5 +203,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:16:52.440Z"
+  "updatedAt": "2026-05-12T15:20:08.367Z"
 };
