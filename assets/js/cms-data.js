@@ -39,5 +39,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T13:32:56.418Z"
+  "updatedAt": "2026-05-12T13:34:10.178Z"
 };
