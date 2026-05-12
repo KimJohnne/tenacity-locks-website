@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-h50-sn-keyless",
+      "name": "Tenacity Premium Quality H50 SN Keys Both Sides",
+      "sku": "T-H50-SN-KB",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-h50-sn-keyless-new.jpg",
+      "price": 3000,
+      "originalPrice": null,
+      "description": "Tenacity Premium Quality H50 SN keys both sides. Premium satin nickel style finish.",
+      "features": [
+        "Key Bathroom Lock",
+        "H50 Series",
+        "SN Finish",
+        "Outside Groove",
+        "Inside Knob"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-c38-ss-keys",
       "name": "Tenacity H50 SN — Keys Both Sides Bathroom Locks",
       "sku": "T-H50-SN",
@@ -63,5 +81,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T14:51:13.898Z"
+  "updatedAt": "2026-05-12T14:53:42.999Z"
 };
