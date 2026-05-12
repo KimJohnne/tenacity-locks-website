@@ -385,10 +385,27 @@ window.TENACITY_CMS_DATA = {
         "Non-duplicatable keys"
       ],
       "onOffer": false
+    },
+    {
+      "id": "tenacity-510-mab",
+      "name": "Tenacity 510 MAC 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-510-MAC",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-510-mac.jpg",
+      "price": 9500,
+      "originalPrice": null,
+      "description": "Tenacity 510 MAC 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false
     }
   ],
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T16:14:55.240Z"
+  "updatedAt": "2026-05-12T16:16:21.104Z"
 };
