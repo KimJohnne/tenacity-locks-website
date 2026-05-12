@@ -5,7 +5,12 @@
 // ============================================================
 window.TENACITY_CMS_DATA = {
   "customProducts": [],
-  "customCategories": [],
+  "customCategories": [
+    {
+      "id": "non-duplicatable-keys",
+      "name": "TENACITY 4-PIN locks with non-duplicatable keys"
+    }
+  ],
   "customBlog": [],
   "homepageSettings": {
     "headline": "",
@@ -15,5 +20,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T13:14:12.129Z"
+  "updatedAt": "2026-05-12T13:26:38.986Z"
 };
