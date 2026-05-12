@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-t108-mab",
+      "name": "Tenacity T108 MCF ",
+      "sku": "PQ-T108-MCF",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-t108-mab-new.jpg",
+      "price": 4500,
+      "originalPrice": null,
+      "description": "Tenacity T108 MCF premium internal door knob lock. Stylish grey finish with keys included.",
+      "features": [
+        "T108 Series",
+        "MCF Grey Finish",
+        "Knob Lock",
+        "Keys Included",
+        "Premium Quality"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-t189-gp-executive",
       "name": "Tenacity T108 MBN (Grey)",
       "sku": "TC-T108-MBN-G",
@@ -132,5 +150,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:00:50.601Z"
+  "updatedAt": "2026-05-12T15:02:20.868Z"
 };
