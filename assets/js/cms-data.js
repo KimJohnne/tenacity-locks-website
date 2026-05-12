@@ -232,10 +232,27 @@ window.TENACITY_CMS_DATA = {
         "5-year guarantee"
       ],
       "onOffer": false
+    },
+    {
+      "id": "tenacity-51-nbgp",
+      "name": "Tenacity 62 ACC 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-62-ACC",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-51-nbgp.jpg",
+      "price": 9000,
+      "originalPrice": null,
+      "description": "Tenacity 62 ACC 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false
     }
   ],
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T16:01:11.012Z"
+  "updatedAt": "2026-05-12T16:02:32.782Z"
 };
