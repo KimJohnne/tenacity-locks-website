@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-c38-ss-keys",
+      "name": "Tenacity H50 SN — Keys Both Sides Bathroom Locks",
+      "sku": "T-H50-SN",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-c38-ss-keys-new.jpg",
+      "price": 3500,
+      "originalPrice": null,
+      "description": "Tenacity Tenacity H50 SN bathroom door lock with keys on both sides. Reliable premium lock for internal doors.",
+      "features": [
+        "Keys Both Sides",
+        "H50 Series",
+        "Stainless Steel",
+        "Premium Quality",
+        "Internal Door Lock"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "c38-ss-keyless",
       "name": "TM53 MSN Keyless Bathroom Lock",
       "sku": "TM53-MSN",
@@ -45,5 +63,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T14:48:43.628Z"
+  "updatedAt": "2026-05-12T14:51:13.898Z"
 };
