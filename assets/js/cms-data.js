@@ -4,9 +4,28 @@
 // Do not delete it. Public pages read this file globally.
 // ============================================================
 window.TENACITY_CMS_DATA = {
-  customProducts: [],
-  customCategories: [],
-  customBlog: [],
-  homepageSettings: {},
-  updatedAt: null
+  "customProducts": [
+    {
+      "id": "c38-black-keys",
+      "name": "TM53 MCF - Keys Both Sides",
+      "sku": "TM-53-MCF",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/c38-black-keys.jpg",
+      "price": 1500,
+      "originalPrice": 2500,
+      "description": "Premium tm53 mcf lock with keys on both sides. Both Sides Keys for maximum security.",
+      "features": [
+        "Keys Both Sides",
+        "tm53 mcf Series",
+        "Matte black",
+        "CE Certified",
+        "5-year guarantee"
+      ],
+      "onOffer": false
+    }
+  ],
+  "customCategories": [],
+  "customBlog": [],
+  "homepageSettings": {},
+  "updatedAt": "2026-05-12T14:46:41.302Z"
 };
