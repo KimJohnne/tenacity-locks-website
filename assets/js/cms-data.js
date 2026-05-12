@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "f6-series-3",
+      "name": "Tenacity F6 Series 3-PIN Lock MCF— Non-Duplicatable Keys",
+      "sku": "F6-NDK-03",
+      "category": "f6-series",
+      "image": "assets/images/products/f6-series-3.jpg",
+      "price": 6500,
+      "originalPrice": null,
+      "description": "Tenacity F6 Series 3-PIN lock with non-duplicatable keys. Strong internal door security lock priced at KShs 6,500.",
+      "features": [
+        "F6 Series",
+        "3-PIN Lock",
+        "Non-Duplicatable Keys",
+        "Premium Security",
+        "Internal Door Lock"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "f6-series-4",
       "name": "Tenacity F6 Series 3-PIN Lock  — Non-Duplicatable Keys",
       "sku": "F6-NDK-04",
@@ -111,5 +129,5 @@ window.TENACITY_CMS_DATA = {
     "email": "info@tenacitylocks.com",
     "phone": "0711 77 66 88"
   },
-  "updatedAt": "2026-05-12T13:54:22.312Z"
+  "updatedAt": "2026-05-12T13:55:31.637Z"
 };
