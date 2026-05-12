@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-t108-mbn-grey",
+      "name": "Tenacity T189 GP Executive Quality - Key & Knob",
+      "sku": "PQ-T189-GP",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-t108-mbn-grey-new.jpg",
+      "price": 4500,
+      "originalPrice": null,
+      "description": "Tenacity T189 GP Executive Quality. Elegant GP finish with keys included.",
+      "features": [
+        "Tenacity T189 GP Executive Quality",
+        "GP Finish",
+        "Knob Lock",
+        "Keys Included",
+        "Premium Quality"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-t108-mab",
       "name": "Tenacity T108 MCF ",
       "sku": "PQ-T108-MCF",
@@ -150,5 +168,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:02:20.868Z"
+  "updatedAt": "2026-05-12T15:04:29.795Z"
 };
