@@ -6,6 +6,24 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "f6-series-1",
+      "name": "Tenacity F6 Series 3-PIN Lock Black — Non-Duplicatable Keys",
+      "sku": "F6-BLACK",
+      "category": "f6-series",
+      "image": "assets/images/products/f6-series-1.jpg",
+      "price": 6500,
+      "originalPrice": null,
+      "description": "Tenacity F6 Series 3-PIN main door lock with non-duplicatable keys. Ideal for steel doors and solid wooden mahogany heavy-duty doors, priced at KShs 6,500.",
+      "features": [
+        "F6 Series",
+        "3-PIN Lock",
+        "Non-Duplicatable Keys",
+        "Main Door Lock",
+        "Steel & Heavy Wooden Doors"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-t108-mbn-grey",
       "name": "Tenacity T108 MCF",
       "sku": "PQ-T108-MCF",
@@ -168,5 +186,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T15:14:45.063Z"
+  "updatedAt": "2026-05-12T15:16:52.440Z"
 };
