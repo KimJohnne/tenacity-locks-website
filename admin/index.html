@@ -326,7 +326,7 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Branch</label><input type="text" class="form-control" id="ghBranch" value="main"></div>
-          <div class="form-group"><label>GitHub Token</label><input type="password" class="form-control" id="ghToken" placeholder="github_pat_..."></div>
+          <div class="form-group"><label>GitHub Token</label><input type="password" class="form-control" id="ghToken" placeholder="Paste your GitHub token here"><small style="display:block;margin-top:6px;color:var(--gray);line-height:1.5;">For security, the token is not hardcoded into this public website. Paste it once per browser, then click Save GitHub Settings.</small></div>
         </div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
           <button onclick="saveGithubSettings()" class="btn btn-primary">Save GitHub Settings</button>
@@ -359,6 +359,7 @@ const MONTHS_FULL = ['January','February','March','April','May','June','July','A
 // ── GitHub-only CMS storage ──
 const CMS_FILE_PATH = 'assets/js/cms-data.js';
 const GH_CONFIG_KEY = 'tenacity_github_config';
+const GH_DEFAULTS = { owner: 'KimJohnne', repo: 'tenacity-locks-website', branch: 'main', token: '' };
 
 function setGhStatus(message, ok = true) {
   const el = document.getElementById('ghStatus');
@@ -368,16 +369,16 @@ function setGhStatus(message, ok = true) {
 }
 
 function getGithubConfig() {
-  try { return JSON.parse(localStorage.getItem(GH_CONFIG_KEY) || '{}'); }
-  catch { return {}; }
+  try { return { ...GH_DEFAULTS, ...(JSON.parse(localStorage.getItem(GH_CONFIG_KEY) || '{}')) }; }
+  catch { return { ...GH_DEFAULTS }; }
 }
 
 function loadGithubSettings() {
   const c = getGithubConfig();
   if (document.getElementById('ghOwner')) {
-    document.getElementById('ghOwner').value = c.owner || '';
-    document.getElementById('ghRepo').value = c.repo || '';
-    document.getElementById('ghBranch').value = c.branch || 'main';
+    document.getElementById('ghOwner').value = c.owner || GH_DEFAULTS.owner;
+    document.getElementById('ghRepo').value = c.repo || GH_DEFAULTS.repo;
+    document.getElementById('ghBranch').value = c.branch || GH_DEFAULTS.branch;
     document.getElementById('ghToken').value = c.token || '';
   }
 }
@@ -1091,6 +1092,8 @@ async function saveCategory() {
   cmsData().customCategories = custom;
   try { await saveCMSData('Update category: ' + name); } catch (err) { alert('Category saved locally in this browser but failed to publish to GitHub: ' + err.message); }
   resetCatForm(); renderCategoriesTable();
+  if (document.getElementById('pfCategory')) populateCatSelect();
+  if (document.getElementById('productsTable')) renderProductsTable();
 }
 
 function editCategory(id) {
@@ -1107,6 +1110,8 @@ async function deleteCategory(id) {
   cmsData().customCategories = (cmsData().customCategories || []).filter(c => c.id !== id);
   try { await saveCMSData('Delete category: ' + id); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
   renderCategoriesTable();
+  if (document.getElementById('pfCategory')) populateCatSelect();
+  if (document.getElementById('productsTable')) renderProductsTable();
 }
 
 function resetCatForm() {
