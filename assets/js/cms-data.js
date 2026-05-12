@@ -6,6 +6,22 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-t108-black",
+      "name": "Tenacity Premium Quality C38 Stainless Steel - Keys Both Sides",
+      "sku": "PQ-T108-BLK",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-t108-black-new.jpg",
+      "price": 2500,
+      "originalPrice": null,
+      "description": "Tenacity premium quality c38 stainless steel. Keys on both sides.",
+      "features": [
+        "Tenacity premium quality c38 stainless steel",
+        "Keys Included",
+        "Premium Quality"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-h50-sn-keys",
       "name": "Tenacity T108 Black — Keys Both Sides",
       "sku": "PQ-H50-SN-K",
@@ -99,5 +115,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T14:55:51.082Z"
+  "updatedAt": "2026-05-12T14:58:39.405Z"
 };
