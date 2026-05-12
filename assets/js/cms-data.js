@@ -6,6 +6,23 @@
 window.TENACITY_CMS_DATA = {
   "customProducts": [
     {
+      "id": "pq-t189-gp-executive",
+      "name": "Tenacity T108 MBN (Grey)",
+      "sku": "TC-T108-MBN-G",
+      "category": "premium-quality",
+      "image": "assets/images/products/pq-t189-gp-executive-new.jpg",
+      "price": 4500,
+      "originalPrice": null,
+      "description": "Tenacity T108 MBN premium internal door knob lock. Antique brass style finish with keys included.",
+      "features": [
+        "Tenacity T108 MBN",
+        "Knob Lock",
+        "Keys Included",
+        "Premium Quality"
+      ],
+      "onOffer": false
+    },
+    {
       "id": "pq-t108-black",
       "name": "Tenacity Premium Quality C38 Stainless Steel - Keys Both Sides",
       "sku": "PQ-T108-BLK",
@@ -115,5 +132,5 @@ window.TENACITY_CMS_DATA = {
   "customCategories": [],
   "customBlog": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T14:58:39.405Z"
+  "updatedAt": "2026-05-12T15:00:50.601Z"
 };
