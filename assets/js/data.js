@@ -813,6 +813,9 @@ const Cart = {
     window.dispatchEvent(new Event('cartUpdated'));
   },
   add(productId, qty = 1) {
+    const product = getAllProducts().find(p => p.id === productId);
+    if (!product) { Cart.toast('Product not found.'); return; }
+    if (isProductOutOfStock(product)) { Cart.toast('This product is currently out of stock.'); return; }
     const items = Cart.get();
     const existing = items.find(i => i.id === productId);
     if (existing) existing.qty += qty;
@@ -886,6 +889,7 @@ function cmsData() {
   window.TENACITY_CMS_DATA.customProducts = window.TENACITY_CMS_DATA.customProducts || [];
   window.TENACITY_CMS_DATA.customCategories = window.TENACITY_CMS_DATA.customCategories || [];
   window.TENACITY_CMS_DATA.customBlog = window.TENACITY_CMS_DATA.customBlog || [];
+  window.TENACITY_CMS_DATA.deletedProductIds = window.TENACITY_CMS_DATA.deletedProductIds || [];
   window.TENACITY_CMS_DATA.homepageSettings = window.TENACITY_CMS_DATA.homepageSettings || {};
   return window.TENACITY_CMS_DATA;
 }
@@ -897,12 +901,25 @@ function mergeById(base, overrides) {
   return Array.from(map.values());
 }
 
+function normalizeProductForSite(p) {
+  const image = p.image || (Array.isArray(p.images) && p.images[0]) || '';
+  return {
+    ...p,
+    image,
+    images: Array.isArray(p.images) && p.images.length ? p.images : (image ? [image] : []),
+    inStock: p.inStock !== false
+  };
+}
+function isProductOutOfStock(p) { return !!p && p.inStock === false; }
 function getProduct(id) { return getAllProducts().find(p => p.id === id); }
 function getCategory(id) { return getAllCategories().find(c => c.id === id); }
 
 // GitHub CMS data is stored in assets/js/cms-data.js and shared globally.
 function getAllProducts() {
-  return mergeById(PRODUCTS, cmsData().customProducts);
+  const deleted = new Set(cmsData().deletedProductIds || []);
+  return mergeById(PRODUCTS, cmsData().customProducts)
+    .filter(p => !deleted.has(p.id))
+    .map(normalizeProductForSite);
 }
 function getAllCategories() {
   return mergeById(CATEGORIES, cmsData().customCategories);

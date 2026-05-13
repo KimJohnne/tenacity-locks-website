@@ -192,12 +192,13 @@ function productCardHTML(p, rootPath = '') {
   const rp = rootPath || ROOT;
   const cat = getAllCategories().find(c => c.id === p.category);
   const discount = p.originalPrice ? Math.round((1 - p.price/p.originalPrice)*100) : 0;
+  const out = p.inStock === false;
   return `
-    <div class="product-card">
+    <div class="product-card ${out ? 'product-card-out' : ''}">
       <a href="${rp}product.html?id=${p.id}">
         <div class="product-card-img">
           <img src="${rp}${p.image}" alt="${p.name}" loading="lazy">
-          ${p.onOffer ? `<span class="offer-badge">-${discount}%</span>` : ''}
+          ${out ? `<span class="stock-badge">Out of Stock</span>` : (p.onOffer ? `<span class="offer-badge">-${discount}%</span>` : '')}
         </div>
       </a>
       <div class="product-card-body">
@@ -209,9 +210,12 @@ function productCardHTML(p, rootPath = '') {
           <span class="price-current">${fmt(p.price)}</span>
           ${p.originalPrice ? `<span class="price-original">${fmt(p.originalPrice)}</span>` : ''}
         </div>
+        ${out ? `<div class="stock-note">Currently out of stock</div>` : ''}
         <div class="product-card-actions">
           <a href="${rp}product.html?id=${p.id}" class="btn btn-outline btn-sm">View</a>
-          <button class="btn btn-primary btn-sm" onclick="Cart.add('${p.id}');this.textContent='✓ Added';setTimeout(()=>this.textContent='Add to Cart',2000)">Add to Cart</button>
+          ${out
+            ? `<button class="btn btn-dark btn-sm" disabled title="This product is currently out of stock">Out of Stock</button>`
+            : `<button class="btn btn-primary btn-sm" onclick="Cart.add('${p.id}');this.textContent='✓ Added';setTimeout(()=>this.textContent='Add to Cart',2000)">Add to Cart</button>`}
         </div>
       </div>
     </div>`;
