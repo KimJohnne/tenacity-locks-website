@@ -483,6 +483,28 @@ window.TENACITY_CMS_DATA = {
       "images": [
         "assets/images/products/c38-ss-keys.jpg"
       ]
+    },
+    {
+      "id": "tm53-mcf-keyless",
+      "name": "TM53 MAB Keys on Both Sides",
+      "sku": "TM53-MAB-K",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/tm53-ss-keyless.jpg",
+      "price": 1500,
+      "originalPrice": 2000,
+      "description": "TM53 MAB with keys on both sides",
+      "features": [
+        "No Key Required",
+        "Privacy lock",
+        "MAB finish",
+        "CE Certified",
+        "Easy fit"
+      ],
+      "onOffer": true,
+      "inStock": true,
+      "images": [
+        "assets/images/products/tm53-ss-keyless.jpg"
+      ]
     }
   ],
   "customCategories": [],
@@ -491,5 +513,5 @@ window.TENACITY_CMS_DATA = {
     "tenacity-510-mac"
   ],
   "homepageSettings": {},
-  "updatedAt": "2026-05-13T09:39:46.304Z"
+  "updatedAt": "2026-05-13T09:42:55.851Z"
 };
