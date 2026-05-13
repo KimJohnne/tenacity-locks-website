@@ -141,7 +141,11 @@ window.TENACITY_CMS_DATA = {
         "Keys Included",
         "Premium Quality"
       ],
-      "onOffer": false
+      "onOffer": false,
+      "images": [
+        "assets/images/products/pq-t108-black-new.jpg"
+      ],
+      "inStock": false
     },
     {
       "id": "pq-h50-sn-keys",
@@ -406,6 +410,7 @@ window.TENACITY_CMS_DATA = {
   ],
   "customCategories": [],
   "customBlog": [],
+  "deletedProductIds": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-12T16:16:21.104Z"
+  "updatedAt": "2026-05-13T09:27:30.754Z"
 };
