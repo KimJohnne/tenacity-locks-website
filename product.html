@@ -36,12 +36,13 @@ if (!product) {
   document.title = `${product.name} — Tenacity Locks Ltd`;
   const cat = getAllCategories().find(c => c.id === product.category);
   const discount = product.originalPrice ? Math.round((1 - product.price/product.originalPrice)*100) : 0;
+  const outOfStock = product.inStock === false;
 
   document.getElementById('productContent').innerHTML = `
     <div class="product-detail">
       <div class="product-gallery">
         <div class="main-img" id="mainImg">
-          <img src="${product.images[0]}" alt="${product.name}" id="mainImgTag">
+          <img src="${(product.images && product.images[0]) || product.image}" alt="${product.name}" id="mainImgTag">
         </div>
         ${product.images.length > 1 ? `
         <div class="product-thumbs">
@@ -63,7 +64,7 @@ if (!product) {
           <span>${product.name}</span>
         </nav>
 
-        ${product.onOffer ? `<div style="margin-bottom:12px;"><span class="offer-badge" style="position:static;">🔥 MEGA OFFER</span></div>` : ''}
+        ${outOfStock ? `<div style="margin-bottom:12px;"><span class="stock-badge" style="position:static;display:inline-flex;">Out of Stock</span></div>` : (product.onOffer ? `<div style="margin-bottom:12px;"><span class="offer-badge" style="position:static;">🔥 MEGA OFFER</span></div>` : '')}
 
         <h1>${product.name}</h1>
         <div style="font-size:0.8rem;color:var(--gray);margin-bottom:16px;">SKU: ${product.sku}</div>
@@ -75,6 +76,7 @@ if (!product) {
         </div>
 
         <p style="color:var(--gray);margin-bottom:24px;">${product.description}</p>
+        ${outOfStock ? `<div class="stock-alert">This product is currently out of stock. You can still WhatsApp us to ask when it will be available again.</div>` : ''}
 
         <div class="product-features">
           <h4>Key Features</h4>
@@ -93,12 +95,13 @@ if (!product) {
         </div>
 
         <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
-          <button class="btn btn-primary btn-lg" onclick="addToCart()" style="flex:1;min-width:180px;">
-            🛒 Add to Cart
-          </button>
-          <a href="cart.html" class="btn btn-dark btn-lg" style="flex:1;min-width:180px;" onclick="addToCart()">
-            Buy Now
-          </a>
+          ${outOfStock ? `
+            <button class="btn btn-dark btn-lg" disabled style="flex:1;min-width:180px;opacity:.72;cursor:not-allowed;">Out of Stock</button>
+            <a href="shop.html" class="btn btn-outline btn-lg" style="flex:1;min-width:180px;">Continue Shopping</a>
+          ` : `
+            <button class="btn btn-primary btn-lg" onclick="addToCart()" style="flex:1;min-width:180px;">🛒 Add to Cart</button>
+            <a href="cart.html" class="btn btn-dark btn-lg" style="flex:1;min-width:180px;" onclick="addToCart()">Buy Now</a>
+          `}
         </div>
 
         <button class="btn btn-whatsapp btn-block product-whatsapp-btn" onclick="orderWhatsApp()">
@@ -143,6 +146,7 @@ function changeQty(delta) {
 
 function addToCart() {
   if (!product) return;
+  if (product.inStock === false) return alert('This product is currently out of stock. Please WhatsApp us for availability.');
   const qty = parseInt(document.getElementById('qtyInput').value) || 1;
   Cart.add(product.id, qty);
 }
