@@ -462,6 +462,27 @@ window.TENACITY_CMS_DATA = {
       "images": [
         "assets/images/products/c38-black-keyless.jpg"
       ]
+    },
+    {
+      "id": "c38-ss-keys",
+      "name": "Tenacity TM53 MSN Stainless Steel — Keys Both Sides",
+      "sku": "TM53-MSN-K",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/c38-ss-keys.jpg",
+      "price": 1500,
+      "originalPrice": 2000,
+      "description": "Premium TM53 MSN Stainless Steel lock with keys on both sides.",
+      "features": [
+        "Keys Both Sides",
+        "Stainless Steel",
+        "CE Certified",
+        "5-year guarantee"
+      ],
+      "onOffer": false,
+      "inStock": true,
+      "images": [
+        "assets/images/products/c38-ss-keys.jpg"
+      ]
     }
   ],
   "customCategories": [],
@@ -470,5 +491,5 @@ window.TENACITY_CMS_DATA = {
     "tenacity-510-mac"
   ],
   "homepageSettings": {},
-  "updatedAt": "2026-05-13T09:38:16.658Z"
+  "updatedAt": "2026-05-13T09:39:46.304Z"
 };
