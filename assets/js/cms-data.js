@@ -419,6 +419,27 @@ window.TENACITY_CMS_DATA = {
       ],
       "sku": "PQ-C38-SS-KL",
       "inStock": false
+    },
+    {
+      "id": "tenacity-600-mac",
+      "name": "Tenacity 600 MCF 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-600-MCF",
+      "category": "four-pin-non-duplicatable",
+      "image": "assets/images/products/tenacity-600-mac.jpg",
+      "price": 10000,
+      "originalPrice": null,
+      "description": "Tenacity 600 MCF 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "features": [
+        "4-Solid PIN lock",
+        "Full brass 70mm cylinder",
+        "2-in-1 double smartlock",
+        "Non-duplicatable keys"
+      ],
+      "onOffer": false,
+      "inStock": true,
+      "images": [
+        "assets/images/products/tenacity-600-mac.jpg"
+      ]
     }
   ],
   "customCategories": [],
@@ -427,5 +448,5 @@ window.TENACITY_CMS_DATA = {
     "tenacity-510-mac"
   ],
   "homepageSettings": {},
-  "updatedAt": "2026-05-13T09:33:13.967Z"
+  "updatedAt": "2026-05-13T09:34:27.597Z"
 };
