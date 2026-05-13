@@ -406,11 +406,33 @@ window.TENACITY_CMS_DATA = {
         "Non-duplicatable keys"
       ],
       "onOffer": false
+    },
+    {
+      "id": "pq-c38-ss-keyless",
+      "name": "Tenacity Premium Quality C38 Stainless Steel Keyless Bathroom Lock",
+      "category": "premium-quality",
+      "price": 3000,
+      "originalPrice": null,
+      "onOffer": false,
+      "image": "assets/images/products/pq-c38-ss-keyless-new.jpg",
+      "images": [
+        "assets/images/products/pq-c38-ss-keyless-new.jpg"
+      ],
+      "description": "Tenacity Premium Quality C38 Stainless Steel keyless bathroom lock with outside groove and inside knob. Smooth operation and premium stainless steel finish.",
+      "features": [
+        "Keyless Bathroom Lock",
+        "C38 Series",
+        "Stainless Steel",
+        "Outside Groove",
+        "Inside Knob"
+      ],
+      "sku": "PQ-C38-SS-KL",
+      "inStock": false
     }
   ],
   "customCategories": [],
   "customBlog": [],
   "deletedProductIds": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-13T09:27:30.754Z"
+  "updatedAt": "2026-05-13T09:28:01.459Z"
 };
