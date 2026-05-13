@@ -392,20 +392,24 @@ window.TENACITY_CMS_DATA = {
     },
     {
       "id": "tenacity-510-mab",
-      "name": "Tenacity 510 MAC 4-PIN Lock with Non-duplicatable Keys",
-      "sku": "TENACITY-510-MAC",
+      "name": "Tenacity 600 BLACK 4-PIN Lock with Non-duplicatable Keys",
+      "sku": "TENACITY-600-BLK",
       "category": "four-pin-non-duplicatable",
       "image": "assets/images/products/tenacity-510-mac.jpg",
-      "price": 9500,
+      "price": 10000,
       "originalPrice": null,
-      "description": "Tenacity 510 MAC 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
+      "description": "Tenacity 600 BLACK 4-Solid PIN lock with full brass 70mm cylinder, 2-in-1 double smartlock, and non-duplicatable keys.",
       "features": [
         "4-Solid PIN lock",
         "Full brass 70mm cylinder",
         "2-in-1 double smartlock",
         "Non-duplicatable keys"
       ],
-      "onOffer": false
+      "onOffer": false,
+      "inStock": true,
+      "images": [
+        "assets/images/products/tenacity-510-mac.jpg"
+      ]
     },
     {
       "id": "pq-c38-ss-keyless",
@@ -434,5 +438,5 @@ window.TENACITY_CMS_DATA = {
   "customBlog": [],
   "deletedProductIds": [],
   "homepageSettings": {},
-  "updatedAt": "2026-05-13T09:28:01.459Z"
+  "updatedAt": "2026-05-13T09:31:29.545Z"
 };
