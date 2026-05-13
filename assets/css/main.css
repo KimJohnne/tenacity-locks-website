@@ -1497,3 +1497,49 @@ textarea.form-control { resize: vertical; min-height: 120px; }
 #cfNairobiDestination {
   border-color: rgba(168, 20, 151, 0.28);
 }
+
+/* Admin/front-end stock status support */
+.stock-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #dc2626;
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.28);
+  z-index: 3;
+}
+.product-card-out .product-card-img img { filter: grayscale(0.3); opacity: 0.78; }
+.product-card-out .product-card-name { color: #666; }
+.stock-note {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 8px 0 2px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.stock-alert {
+  margin: -6px 0 22px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  color: #991b1b;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  font-weight: 600;
+}
+button:disabled,
+.btn[disabled] {
+  pointer-events: none;
+}
