@@ -440,6 +440,28 @@ window.TENACITY_CMS_DATA = {
       "images": [
         "assets/images/products/tenacity-600-mac.jpg"
       ]
+    },
+    {
+      "id": "c38-black-keyless",
+      "name": "Tenacity TM53 MCF Keyless Bathroom Lock",
+      "sku": "TM53-BLK-KL",
+      "category": "single-pin-ndk",
+      "image": "assets/images/products/c38-black-keyless.jpg",
+      "price": 1500,
+      "originalPrice": null,
+      "description": "Premium Tenacity TM53 MCF bathroom lock. High-grade construction with smooth operation.",
+      "features": [
+        "No Key Required",
+        "TM53 Series",
+        "Matte black",
+        "CE Certified",
+        "5-year guarantee"
+      ],
+      "onOffer": false,
+      "inStock": true,
+      "images": [
+        "assets/images/products/c38-black-keyless.jpg"
+      ]
     }
   ],
   "customCategories": [],
@@ -448,5 +470,5 @@ window.TENACITY_CMS_DATA = {
     "tenacity-510-mac"
   ],
   "homepageSettings": {},
-  "updatedAt": "2026-05-13T09:34:27.597Z"
+  "updatedAt": "2026-05-13T09:38:16.658Z"
 };
