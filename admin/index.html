@@ -237,10 +237,18 @@
         </div>
         <div class="form-group"><label>Description *</label><textarea class="form-control" id="pfDescription" rows="4"></textarea></div>
         <div class="form-group"><label>Features (comma-separated)</label><input type="text" class="form-control" id="pfFeatures" placeholder="5 Keys, CE Certified, Anti-pick"></div>
-        <div class="form-group">
-          <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;">
-            <input type="checkbox" id="pfOnOffer" style="width:18px;height:18px;"> Mark as "On Offer"
-          </label>
+        <div class="form-row">
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="pfOnOffer" style="width:18px;height:18px;"> Mark as "On Offer"
+            </label>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="pfInStock" style="width:18px;height:18px;" checked> Product is in stock
+            </label>
+            <small style="display:block;color:var(--gray);font-size:0.75rem;margin-top:6px;">Untick this to show an Out of Stock warning on the website and disable cart ordering for this product.</small>
+          </div>
         </div>
         <div style="display:flex;gap:12px;">
           <button onclick="saveProduct()" class="btn btn-primary">Save Product</button>
@@ -410,13 +418,10 @@ async function githubRequest(path, options = {}) {
   const noCachePath = method === 'GET' ? `${path}${separator}_=${Date.now()}` : path;
   const res = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/${noCachePath}`, {
     ...options,
-    cache: 'no-store',
     headers: {
       'Accept': 'application/vnd.github+json',
       'Authorization': `Bearer ${cfg.token}`,
       'X-GitHub-Api-Version': '2022-11-28',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
       ...(options.headers || {})
     }
   });
@@ -544,6 +549,7 @@ function normalizeCmsData(data = {}) {
     customProducts: Array.isArray(data.customProducts) ? data.customProducts : [],
     customCategories: Array.isArray(data.customCategories) ? data.customCategories : [],
     customBlog: Array.isArray(data.customBlog) ? data.customBlog : [],
+    deletedProductIds: Array.isArray(data.deletedProductIds) ? data.deletedProductIds : [],
     homepageSettings: data.homepageSettings && typeof data.homepageSettings === 'object' ? data.homepageSettings : {},
     updatedAt: data.updatedAt || null
   };
@@ -567,6 +573,7 @@ function mergeCmsSnapshots(remoteData, localData) {
     customProducts: mergeByIdForCms(remote.customProducts, local.customProducts),
     customCategories: mergeByIdForCms(remote.customCategories, local.customCategories),
     customBlog: mergeByIdForCms(remote.customBlog, local.customBlog),
+    deletedProductIds: Array.from(new Set([...(remote.deletedProductIds || []), ...(local.deletedProductIds || [])])),
     homepageSettings: { ...remote.homepageSettings, ...local.homepageSettings },
     updatedAt: new Date().toISOString()
   });
@@ -577,8 +584,20 @@ function applyCmsMutation(baseData, mutation = null) {
   if (!mutation || !mutation.type) return data;
 
   if (mutation.type === 'product') {
-    if (mutation.action === 'delete') data.customProducts = data.customProducts.filter(p => p.id !== mutation.id);
-    if (mutation.action === 'upsert' && mutation.item) data.customProducts = mergeByIdForCms(data.customProducts, [mutation.item]);
+    if (mutation.action === 'delete') {
+      data.customProducts = data.customProducts.filter(p => p.id !== mutation.id);
+      data.deletedProductIds = Array.from(new Set([...(data.deletedProductIds || []), mutation.id].filter(Boolean)));
+    }
+    if (mutation.action === 'upsert' && mutation.item) {
+      data.deletedProductIds = (data.deletedProductIds || []).filter(id => id !== mutation.item.id);
+      data.customProducts = mergeByIdForCms(data.customProducts, [mutation.item]);
+    }
+    if (mutation.action === 'stock' && mutation.id) {
+      const existing = getAllProducts().find(p => p.id === mutation.id) || { id: mutation.id };
+      const override = { ...existing, id: mutation.id, inStock: mutation.inStock !== false };
+      data.deletedProductIds = (data.deletedProductIds || []).filter(id => id !== mutation.id);
+      data.customProducts = mergeByIdForCms(data.customProducts, [override]);
+    }
   }
   if (mutation.type === 'category') {
     if (mutation.action === 'delete') data.customCategories = data.customCategories.filter(c => c.id !== mutation.id);
@@ -1182,11 +1201,15 @@ function renderProductsTable() {
           <td><strong>${p.name}</strong><div style="font-size:0.75rem;color:var(--gray);">${p.sku||''}</div></td>
           <td>${p.category}</td>
           <td>${fmt(p.price)}${p.originalPrice ? `<br><small style="color:var(--gray);text-decoration:line-through;">${fmt(p.originalPrice)}</small>` : ''}</td>
-          <td>${p.onOffer ? '<span class="badge badge-success">On Offer</span>' : '<span class="badge badge-warning">Regular</span>'}</td>
+          <td>
+            ${p.inStock === false ? '<span class="badge" style="background:rgba(239,68,68,0.12);color:#dc2626;">Out of Stock</span>' : '<span class="badge badge-success">In Stock</span>'}
+            ${p.onOffer ? '<br><span class="badge badge-warning" style="margin-top:4px;">On Offer</span>' : ''}
+          </td>
           <td>
             <div class="action-btns">
               <button onclick="showProductForm('${p.id}')" class="btn btn-outline btn-sm">Edit</button>
-              ${isCustom ? `<button onclick="deleteProduct('${p.id}')" class="btn btn-sm" style="color:var(--danger);background:rgba(239,68,68,0.1);">Delete</button>` : ''}
+              <button onclick="toggleProductStock('${p.id}')" class="btn btn-sm" style="background:${p.inStock === false ? 'rgba(34,197,94,0.12);color:#16a34a' : 'rgba(245,158,11,0.12);color:#b45309'};">${p.inStock === false ? 'Mark In Stock' : 'Mark Out of Stock'}</button>
+              <button onclick="deleteProduct('${p.id}')" class="btn btn-sm" style="color:var(--danger);background:rgba(239,68,68,0.1);">Delete</button>
             </div>
           </td>
         </tr>`;
@@ -1218,7 +1241,8 @@ function showProductForm(id) {
     document.getElementById('pfOriginalPrice').value = p.originalPrice || '';
     document.getElementById('pfDescription').value = p.description;
     document.getElementById('pfFeatures').value = (p.features || []).join(', ');
-    document.getElementById('pfOnOffer').checked = p.onOffer;
+    document.getElementById('pfOnOffer').checked = !!p.onOffer;
+    document.getElementById('pfInStock').checked = p.inStock !== false;
     document.getElementById('pfEditId').value = id;
   } else {
     document.getElementById('productFormTitle').textContent = 'Add Product';
@@ -1229,6 +1253,7 @@ function showProductForm(id) {
     document.getElementById('pfImagePreview').classList.add('hidden');
     document.getElementById('pfImagePreview').innerHTML = '';
     document.getElementById('pfOnOffer').checked = false;
+    document.getElementById('pfInStock').checked = true;
     document.getElementById('pfEditId').value = '';
   }
   document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
@@ -1276,7 +1301,9 @@ async function saveProduct() {
     description: document.getElementById('pfDescription').value,
     features: document.getElementById('pfFeatures').value.split(',').map(f => f.trim()).filter(Boolean),
     onOffer: document.getElementById('pfOnOffer').checked,
+    inStock: document.getElementById('pfInStock').checked,
   };
+  product.images = [product.image].filter(Boolean);
   if (!product.name || !product.price) return alert('Name and price are required.');
   let custom = cmsData().customProducts || [];
   const idx = custom.findIndex(p => p.id === product.id);
@@ -1288,10 +1315,30 @@ async function saveProduct() {
 }
 
 async function deleteProduct(id) {
-  if (!confirm('Delete this product override/custom product? Built-in products can only be hidden by editing them, not permanently removed from data.js.')) return;
+  const product = getAllProducts().find(p => p.id === id);
+  const name = product ? product.name : id;
+  if (!confirm(`Delete/hide this product from the website?\n\n${name}\n\nThis removes it from shop, categories, product pages and customer ordering. You can re-add it later as a new product if needed.`)) return;
   cmsData().customProducts = (cmsData().customProducts || []).filter(p => p.id !== id);
-  try { await saveCMSData('Delete product: ' + id, { type: 'product', action: 'delete', id }); } catch (err) { alert('Failed to publish to GitHub: ' + err.message); }
+  cmsData().deletedProductIds = Array.from(new Set([...(cmsData().deletedProductIds || []), id]));
+  try { await saveCMSData('Delete product: ' + name, { type: 'product', action: 'delete', id }); }
+  catch (err) { alert('Product was hidden locally but failed to publish to GitHub: ' + err.message); }
   renderProductsTable();
+  initDashboard();
+}
+
+async function toggleProductStock(id) {
+  const product = getAllProducts().find(p => p.id === id);
+  if (!product) return alert('Product not found.');
+  const inStock = product.inStock === false;
+  const label = inStock ? 'mark this product as IN STOCK' : 'mark this product as OUT OF STOCK';
+  if (!confirm(`Are you sure you want to ${label}?\n\n${product.name}`)) return;
+  const updated = { ...product, inStock };
+  if (!Array.isArray(updated.images) || !updated.images.length) updated.images = [updated.image].filter(Boolean);
+  cmsData().customProducts = mergeByIdForCms(cmsData().customProducts || [], [updated]);
+  try { await saveCMSData(`${inStock ? 'Mark in stock' : 'Mark out of stock'}: ${product.name}`, { type: 'product', action: 'stock', id, inStock }); }
+  catch (err) { alert('Stock status changed locally but failed to publish to GitHub: ' + err.message); }
+  renderProductsTable();
+  initDashboard();
 }
 
 // ── Categories ──
